@@ -4,17 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Player extends Model
+class Game extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['game_date', 'game_time', 'location'];
 
     public function lineups()
     {
         return $this->hasMany(Lineup::class);
     }
 
-    public function gameStats()
+    public function stats()
     {
         return $this->hasMany(PlayerGameStat::class);
+    }
+
+    public function score()
+    {
+        return $this->hasOne(Score::class);
     }
 }
