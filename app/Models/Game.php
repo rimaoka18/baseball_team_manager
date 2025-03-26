@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    protected $fillable = ['game_date', 'game_time', 'location'];
+    protected $fillable = ['game_date', 'location', 'opponent', 'team_score', 'opponent_score'];
 
     public function lineups()
     {
@@ -21,5 +21,10 @@ class Game extends Model
     public function score()
     {
         return $this->hasOne(Score::class);
+    }
+
+    public function playerGameStats()
+    {
+        return $this->hasMany(PlayerGameStat::class);
     }
 }
