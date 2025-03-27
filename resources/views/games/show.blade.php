@@ -72,22 +72,24 @@
                 </thead>
                 <tbody>
                     @foreach ($pitching as $stat)
-                        <tr class="border-t hover:bg-gray-50">
-                            <td class="px-3 py-1 border">{{ $stat->player->name }}</td>
-                            <td class="text-center px-2 py-1 border">{{ $stat->innings_pitched }}</td>
-                            <td class="text-center px-2 py-1 border">{{ $stat->hits_allowed }}</td>
-                            <td class="text-center px-2 py-1 border">{{ ($stat->earned_runs + ($stat->pr ?? 0)) }}</td>
-                            <td class="text-center px-2 py-1 border">{{ $stat->earned_runs }}</td>
-                            <td class="text-center px-2 py-1 border">{{ $stat->pitching_walks }}</td>
-                            <td class="text-center px-2 py-1 border">{{ $stat->pitching_strikeouts }}</td>
-                            <td class="text-center px-2 py-1 border">
-                                @if ($stat->innings_pitched > 0)
-                                    {{ number_format(($stat->earned_runs * 9) / $stat->innings_pitched, 2) }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                        </tr>
+                        @if ($stat->innings_pitched > 0)
+                            <tr class="border-t hover:bg-gray-50">
+                                <td class="px-3 py-1 border">{{ $stat->player->name }}</td>
+                                <td class="text-center px-2 py-1 border">{{ $stat->innings_pitched }}</td>
+                                <td class="text-center px-2 py-1 border">{{ $stat->hits_allowed }}</td>
+                                <td class="text-center px-2 py-1 border">{{ ($stat->earned_runs + ($stat->pr ?? 0)) }}</td>
+                                <td class="text-center px-2 py-1 border">{{ $stat->earned_runs }}</td>
+                                <td class="text-center px-2 py-1 border">{{ $stat->pitching_walks }}</td>
+                                <td class="text-center px-2 py-1 border">{{ $stat->pitching_strikeouts }}</td>
+                                <td class="text-center px-2 py-1 border">
+                                    @if ($stat->innings_pitched > 0)
+                                        {{ number_format(($stat->earned_runs * 9) / $stat->innings_pitched, 2) }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
