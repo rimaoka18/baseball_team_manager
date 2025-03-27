@@ -17,7 +17,21 @@ RUN apt-get update && apt-get install -y \
     git \
     vim
 
-# Install PHP extensions (including pdo_mysql)
+# Install PHP extensions (including MySQL support)
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
+# Set working directory
 WORKDIR /var/www
+
+# Copy application code into container
+COPY . .
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader
+
+# Expose port 80 (Render expects this for health check)
+EXPOSE 80
+
+# Start Laravel app using built-in PHP server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
