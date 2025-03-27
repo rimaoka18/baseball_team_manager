@@ -91,7 +91,7 @@ class GamesController extends Controller
             $this->playerGameStat = new PlayerGameStat;
         }
 
-        return redirect()->route('games.index')->with('success', 'ボックススコアが保存されました！');
+        return redirect()->route('games.index');
     }
 
     public function edit(Game $game)
