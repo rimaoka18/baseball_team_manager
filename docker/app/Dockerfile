@@ -33,5 +33,5 @@ RUN composer install --no-dev --optimize-autoloader
 # Expose port 80 (Render expects this for health check)
 EXPOSE 80
 
-# Start Laravel app using built-in PHP server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
+# Run migrations and then start Laravel dev server
+CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
