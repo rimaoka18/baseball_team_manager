@@ -53,6 +53,8 @@
         {{-- Footer --}}
         <footer class="text-center text-xs text-gray-400">
             &copy; 2025 MyDugout. Built by Ryo Imaoka.
+            <br>
+            <a href="{{ route('how-to') }}" class="text-green-300 hover:underline">使い方ガイド</a>
         </footer>
     </div>
 

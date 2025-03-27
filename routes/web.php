@@ -5,6 +5,7 @@ use App\Http\Controllers\GamesController;
 use App\Http\Controllers\PlayerController;
 
 Route::view('/', 'landing');
+Route::view('/how-to', 'how-to')->name('how-to');
 
 
 Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
