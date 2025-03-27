@@ -4,9 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\PlayerController;
 
-Route::get('/', function () {
-  return view('welcome');
-});
+Route::redirect('/', '/games');
+
 
 Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
     Route::get('/', [GamesController::class, 'index'])->name('index');         // ゲーム一覧
