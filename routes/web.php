@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GamesController;
 use App\Http\Controllers\PlayerController;
 
-Route::redirect('/', '/games');
+Route::view('/', 'landing');
 
 
 Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
