@@ -7,14 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class PlayerGameStat extends Model
 {
     protected $fillable = [
-      'game_id', 'player_id',
-      // Batting
-      'at_bats', 'hits', 'runs', 'rbi', 'walks', 'strikeouts',
-      'home_runs', 'steals', 'sacrifice_flies', 'hbp',
-      // Pitching
-      'innings_pitched', 'earned_runs', 'pitching_strikeouts',
-      'pitching_walks', 'hits_allowed', 'pitch_count'
+        'game_id',
+        'player_id',
+        'at_bats',
+        'runs',
+        'hits',
+        'rbi',
+        'home_runs',
+        'walks',
+        'strikeouts',
+        'innings_pitched',
+        'hits_allowed',
+        'earned_runs',
+        'pitching_walks',
+        'pitching_strikeouts',
     ];
+
 
     public function player()
     {
