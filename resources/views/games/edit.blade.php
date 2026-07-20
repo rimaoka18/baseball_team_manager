@@ -93,4 +93,7 @@
         </button>
     </div>
 </form>
+
+@include('games.partials.player-name-autocomplete')
+
 @endsection

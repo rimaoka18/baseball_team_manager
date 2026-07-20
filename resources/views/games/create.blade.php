@@ -119,4 +119,7 @@
         tbody.appendChild(newRow);
     }
 </script>
+
+@include('games.partials.player-name-autocomplete')
+
 @endsection

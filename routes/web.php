@@ -26,3 +26,4 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
 
 // プレイヤー検索
 Route::get('/players/search', [PlayerController::class, 'search'])->name('players.search');
+Route::get('/players/autocomplete', [PlayerController::class, 'autocomplete'])->name('players.autocomplete');
