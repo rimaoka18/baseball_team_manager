@@ -9,13 +9,52 @@
             {{ $game->game_date }}｜{{ $game->location }}
         </h1>
         <h2 class="text-2xl md:text-4xl font-semibold">
-            Blitz Fang {{ $game->team_score }}
-            <span class="text-sm text-gray-600">FINAL</span>
-            {{ $game->opponent_score }} {{ $game->opponent }}
+            @if (is_null($game->team_score) || is_null($game->opponent_score))
+                vs {{ $game->opponent }}
+            @else
+                Blitz Fang {{ $game->team_score }}
+                <span class="text-sm text-gray-600">FINAL</span>
+                {{ $game->opponent_score }} {{ $game->opponent }}
+            @endif
         </h2>
+
+        <div class="flex justify-center gap-2 mt-4">
+            <a href="{{ route('games.edit', $game) }}"
+                class="bg-yellow-500 text-white text-sm px-4 py-1.5 rounded-full hover:bg-yellow-600 transition">
+                編集
+            </a>
+            <form action="{{ route('games.destroy', $game) }}" method="POST"
+                onsubmit="return confirm('本当に削除しますか？');">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                    class="bg-red-500 text-white text-sm px-4 py-1.5 rounded-full hover:bg-red-600 transition">
+                    削除
+                </button>
+            </form>
+        </div>
     </div>
 
+    {{-- Starting Lineup (game not played yet, no box score entered) --}}
+    @if ($lineups->isNotEmpty())
+    <div>
+        <h3 class="text-base md:text-lg font-semibold mb-2">スターティングラインナップ</h3>
+        <ul class="bg-white border rounded shadow-sm divide-y">
+            @foreach ($lineups as $lineup)
+                <li class="flex justify-between px-3 py-2 text-sm">
+                    <span>
+                        <span class="inline-block w-6 text-gray-500">{{ $lineup->batting_order }}</span>
+                        {{ $lineup->player->name }}
+                    </span>
+                    <span class="text-gray-500">{{ $lineup->position }}</span>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     {{-- Batting Stats --}}
+    @if ($hitting->isNotEmpty())
     <div>
         <h3 class="text-base md:text-lg font-semibold mb-2">バッティング成績</h3>
         <p class="text-xs text-gray-500 mb-2 md:hidden">表は横にスクロールできます</p>
@@ -59,6 +98,7 @@
             </table>
         </div>
     </div>
+    @endif
 
     {{-- Pitching Stats --}}
     @php

@@ -29,7 +29,7 @@
                 チームの試合結果・選手成績を簡単に記録＆共有できる野球スコア管理アプリ
             </p>
             <a href="{{ route('games.index') }}"
-               class="inline-block mt-4 bg-green-600 text-white px-6 py-3 rounded shadow hover:bg-green-700 transition">
+               class="inline-block mt-4 bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 transition">
                 アプリを使ってみる
             </a>
         </section>
