@@ -40,10 +40,6 @@
 							class="bg-yellow-500 text-white text-sm px-3 py-1 rounded-full hover:bg-yellow-600">
 							編集
 						</a>
-						<a href="{{ route('games.edit', $game) }}"
-							class="bg-blue-500 text-white text-sm px-3 py-1 rounded-full hover:bg-blue-600">
-							試合結果を入力
-						</a>
 					</div>
 				</div>
 

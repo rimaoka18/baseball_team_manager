@@ -190,11 +190,12 @@ class UpcomingGameTest extends TestCase
 
         $response->assertSee(route('games.upcoming.edit', $gameOne));
         $response->assertSee(route('games.upcoming.edit', $gameTwo));
-        $response->assertSee(route('games.edit', $gameOne));
-        $response->assertSee(route('games.edit', $gameTwo));
 
         // Cancelling now lives on the upcoming-edit page, not the panel itself.
         $response->assertDontSee('この試合の予定をキャンセルしますか');
+
+        // Entering results is reached via the games list, not a dedicated button here.
+        $response->assertDontSee('試合結果を入力');
     }
 
     public function test_upcoming_index_does_not_show_tabs_for_a_single_upcoming_game(): void
