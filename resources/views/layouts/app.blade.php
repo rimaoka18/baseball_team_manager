@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Blitz Fang</title>
-    <script src="https://cdn.tailwindcss.com"></script> {{-- ✅ Use Tailwind via CDN --}}
+    <script src="https://cdn.tailwindcss.com"></script> {{-- Use Tailwind via CDN --}}
 </head>
 <body class="bg-gray-50 text-gray-800">
     <div class="max-w-5xl mx-auto py-6 px-4">

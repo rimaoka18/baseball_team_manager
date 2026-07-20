@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6 text-center">🔍 プレイヤー検索</h1>
+    <h1 class="text-2xl font-bold mb-6 text-center">プレイヤー検索</h1>
 
     <!-- Search Form -->
     <form method="GET" action="{{ route('players.search') }}" class="flex flex-col sm:flex-row gap-3 items-center justify-center mb-8">

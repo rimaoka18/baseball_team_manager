@@ -25,8 +25,8 @@ class UpdateGameRequest extends FormRequest
             'game_date' => 'required|date',
             'location' => 'required|string|max:255',
             'opponent' => 'required|string|max:255',
-            'team_score' => 'required|integer|min:0',
-            'opponent_score' => 'required|integer|min:0',
+            'team_score' => 'nullable|integer|min:0',
+            'opponent_score' => 'nullable|integer|min:0',
             'player_names' => 'required|array',
             'stat_ids' => 'required|array',
 

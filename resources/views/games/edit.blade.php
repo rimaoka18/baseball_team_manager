@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">✏️ 試合編集</h1>
+<h1 class="text-2xl font-bold mb-6">試合編集</h1>
 
 <form action="{{ route('games.update', $game) }}" method="POST" class="space-y-6">
     @csrf
@@ -26,11 +26,11 @@
         <div class="grid grid-cols-2 gap-2">
             <div>
                 <label class="block text-sm font-medium">自チーム得点</label>
-                <input type="number" name="team_score" value="{{ $game->team_score }}" required class="mt-1 w-full border rounded px-3 py-2">
+                <input type="number" name="team_score" value="{{ $game->team_score }}" class="mt-1 w-full border rounded px-3 py-2">
             </div>
             <div>
                 <label class="block text-sm font-medium">相手得点</label>
-                <input type="number" name="opponent_score" value="{{ $game->opponent_score }}" required class="mt-1 w-full border rounded px-3 py-2">
+                <input type="number" name="opponent_score" value="{{ $game->opponent_score }}" class="mt-1 w-full border rounded px-3 py-2">
             </div>
         </div>
     </div>
@@ -66,6 +66,7 @@
                             <input type="text" name="player_names[]" value="{{ $stat->player->name }}"
                                    class="w-32 border rounded px-2 py-1" required>
                             <input type="hidden" name="stat_ids[]" value="{{ $stat->id }}">
+                            <input type="hidden" name="lineup_ids[]" value="{{ $stat->lineup_id }}">
                         </td>
                         <td class="border px-2 py-1"><input type="number" name="ab[]" value="{{ $stat->at_bats }}" class="w-12 px-1 py-1 border rounded text-center"></td>
                         <td class="border px-2 py-1"><input type="number" name="r[]" value="{{ $stat->runs }}" class="w-12 px-1 py-1 border rounded text-center"></td>

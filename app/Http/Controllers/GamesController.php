@@ -33,12 +33,13 @@ class GamesController extends Controller
         $topPitchers = $this->playerStatService->getTopERA();
         $games = $this->game->orderBy('game_date', 'desc')->get();
 
-        $upcomingGame = $this->game->whereNull('team_score')
+        $upcomingGames = $this->game->whereNull('team_score')
+            ->whereDate('game_date', '>=', now()->toDateString())
             ->orderBy('game_date')
             ->with(['lineups' => fn($query) => $query->with('player')->orderBy('batting_order')])
-            ->first();
+            ->get();
 
-        return view('games.index', compact('games', 'topBatters', 'topPitchers', 'upcomingGame'));
+        return view('games.index', compact('games', 'topBatters', 'topPitchers', 'upcomingGames'));
     }
 
     public function show(Game $game)
@@ -141,8 +142,13 @@ class GamesController extends Controller
             // No box score entered yet (e.g. a scheduled game created via the
             // upcoming-game form) — seed the edit form from the lineup instead.
             $stats = $game->lineups()->with('player')->orderBy('batting_order')->get()
-                ->map(fn ($lineup) => (new PlayerGameStat(['player_id' => $lineup->player_id]))
-                    ->setRelation('player', $lineup->player));
+                ->map(function ($lineup) {
+                    $stat = new PlayerGameStat(['player_id' => $lineup->player_id]);
+                    $stat->setRelation('player', $lineup->player);
+                    $stat->lineup_id = $lineup->id;
+
+                    return $stat;
+                });
         }
 
         return view('games.edit', compact('game', 'stats'));
@@ -158,7 +164,11 @@ class GamesController extends Controller
             'opponent_score' => $request->opponent_score,
         ]);
 
+        $isCompleted = $request->team_score !== null && $request->opponent_score !== null;
+
         foreach ($request->stat_ids as $index => $statId) {
+            $lineupId = ($request->lineup_ids ?? [])[$index] ?? null;
+
             if ($statId) {
                 $stat = PlayerGameStat::with('player')->find($statId);
 
@@ -166,6 +176,17 @@ class GamesController extends Controller
 
                 $stat->player->name = $request->player_names[$index];
                 $stat->player->save();
+            } elseif ($lineupId && !$isCompleted) {
+                // Still upcoming (no score entered yet) — just keep the lineup's
+                // player in sync, no box score exists to create yet.
+                $lineup = Lineup::with('player')->find($lineupId);
+
+                if ($lineup && $lineup->player) {
+                    $lineup->player->name = $request->player_names[$index];
+                    $lineup->player->save();
+                }
+
+                continue;
             } else {
                 $player = Player::firstOrCreate(['name' => $request->player_names[$index]]);
                 $stat = new PlayerGameStat([
