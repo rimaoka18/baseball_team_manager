@@ -8,7 +8,7 @@
 </head>
 <body class="relative bg-gray-900 text-white overflow-hidden">
 
-    {{-- 🔥 Background GIF --}}
+    {{-- Background GIF --}}
     <div class="absolute inset-0 z-0">
         <img
             src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2ZsNGV6d2doZmNtenF5eDhrZjBqYjZkM256MTh5MnEzaHU0NHhqaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/jQst100Uo5iPEjwd1M/giphy.gif"
@@ -17,7 +17,7 @@
         >
     </div>
 
-    {{-- 🌙 Overlay Content --}}
+    {{-- Overlay Content --}}
     <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 space-y-16 bg-black/30 backdrop-blur-sm rounded-lg">
 
         {{-- Hero Section --}}
@@ -37,15 +37,15 @@
         {{-- Features --}}
         <section class="grid md:grid-cols-3 gap-6 text-center text-gray-100">
             <div class="p-4 border border-white/20 rounded shadow-sm bg-white/10 backdrop-blur">
-                <h3 class="font-semibold text-lg mb-2">📊 ボックススコア入力</h3>
+                <h3 class="font-semibold text-lg mb-2">ボックススコア入力</h3>
                 <p class="text-sm text-gray-300">試合後に選手の打撃・投手成績を素早く記録。</p>
             </div>
             <div class="p-4 border border-white/20 rounded shadow-sm bg-white/10 backdrop-blur">
-                <h3 class="font-semibold text-lg mb-2">📱 モバイル対応</h3>
+                <h3 class="font-semibold text-lg mb-2">モバイル対応</h3>
                 <p class="text-sm text-gray-300">スマホでもスムーズに操作可能。どこでもスコア管理。</p>
             </div>
             <div class="p-4 border border-white/20 rounded shadow-sm bg-white/10 backdrop-blur">
-                <h3 class="font-semibold text-lg mb-2">🏅 成績ランキング</h3>
+                <h3 class="font-semibold text-lg mb-2">成績ランキング</h3>
                 <p class="text-sm text-gray-300">打率・ERAの上位選手を自動集計。</p>
             </div>
         </section>

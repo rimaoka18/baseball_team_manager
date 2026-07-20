@@ -18,7 +18,7 @@
     {{-- Batting Stats --}}
     <div>
         <h3 class="text-base md:text-lg font-semibold mb-2">バッティング成績</h3>
-        <p class="text-xs text-gray-500 mb-2 md:hidden">👉 表は横にスクロールできます</p>
+        <p class="text-xs text-gray-500 mb-2 md:hidden">表は横にスクロールできます</p>
 
         <div class="overflow-x-auto w-full">
             <table class="min-w-[700px] w-full text-xs md:text-sm border shadow-sm rounded">
@@ -68,7 +68,7 @@
     @if ($pitchingWithIP->count() > 0)
     <div>
         <h3 class="text-base md:text-lg font-semibold mb-2">ピッチング成績</h3>
-        <p class="text-xs text-gray-500 mb-2 md:hidden">👉 表は横にスクロールできます</p>
+        <p class="text-xs text-gray-500 mb-2 md:hidden">表は横にスクロールできます</p>
 
         <div class="overflow-x-auto w-full">
             <table class="min-w-[700px] w-full text-xs md:text-sm border shadow-sm rounded">
