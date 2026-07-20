@@ -30,8 +30,7 @@ COPY . .
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose port 80 (Render expects this for health check)
-EXPOSE 80
+# php-fpm listens on 9000 (used by nginx in docker-compose)
+EXPOSE 9000
 
-# Run migrations and then start Laravel dev server
-CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
+CMD ["php-fpm"]

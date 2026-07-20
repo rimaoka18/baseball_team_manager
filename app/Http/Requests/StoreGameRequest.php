@@ -29,7 +29,7 @@ class StoreGameRequest extends FormRequest
             'opponent_score' => 'required|integer|min:0',
 
             'player_names' => 'required|array',
-            'player_names.*' => 'required|string|max:255|regex:/^\S+\s\S+$/',
+            'player_names.*' => 'required|string|max:255|regex:/^\S+[\s\x{3000}]\S+$/u',
 
             'ab.*' => 'nullable|integer|min:0',
             'r.*' => 'nullable|integer|min:0',

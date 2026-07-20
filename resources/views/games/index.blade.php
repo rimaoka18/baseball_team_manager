@@ -72,6 +72,55 @@
 </div>
 
 
+<!-- Upcoming Game -->
+<div class="bg-white shadow-md rounded-xl p-4 mb-10">
+	<div class="flex items-center justify-between border-b pb-2 mb-4">
+		<h2 class="text-lg font-bold text-gray-800">📅 次の試合</h2>
+		<a href="{{ route('games.upcoming.create') }}" class="text-sm text-blue-600 hover:underline">＋ 次の試合を予定する</a>
+	</div>
+
+	@if ($upcomingGame)
+		<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-4">
+			<span class="text-xl font-semibold">{{ \Illuminate\Support\Carbon::parse($upcomingGame->game_date)->format('Y/m/d') }}</span>
+			<span class="text-gray-600">vs {{ $upcomingGame->opponent ?? '未定' }}</span>
+			<span class="text-gray-500 text-sm">@ {{ $upcomingGame->location }}</span>
+		</div>
+
+		@if ($upcomingGame->lineups->isEmpty())
+			<p class="text-gray-500">スターティングラインナップは未登録です</p>
+		@else
+			<ul id="upcoming-lineup-preview">
+				@foreach ($upcomingGame->lineups as $lineup)
+					<li class="flex justify-between py-1 border-b last:border-none {{ $loop->index >= 9 ? 'hidden upcoming-lineup-extra' : '' }}">
+						<span>
+							<span class="inline-block w-6 text-gray-500 text-sm">{{ $lineup->batting_order }}</span>
+							{{ $lineup->player->name }}
+						</span>
+						<span class="text-gray-500 text-sm">{{ $lineup->position }}</span>
+					</li>
+				@endforeach
+			</ul>
+
+			@if ($upcomingGame->lineups->count() > 9)
+				<button type="button" onclick="toggleLineupPreview(this)" class="mt-3 text-blue-600 hover:underline text-sm">
+					もっと見る
+				</button>
+			@endif
+		@endif
+	@else
+		<p class="text-gray-500">予定されている試合はありません</p>
+	@endif
+</div>
+
+<script>
+	function toggleLineupPreview(button) {
+		const hidden = document.querySelectorAll('.upcoming-lineup-extra');
+		const expand = hidden.length > 0 && hidden[0].classList.contains('hidden');
+		hidden.forEach(row => row.classList.toggle('hidden', !expand));
+		button.textContent = expand ? '閉じる' : 'もっと見る';
+	}
+</script>
+
 <!-- Header and Add Button -->
 <div class="flex items-center justify-between mb-6">
 	<h2 class="text-xl font-bold">試合一覧</h2>

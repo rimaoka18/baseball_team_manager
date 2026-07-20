@@ -13,6 +13,9 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
     Route::get('create', [GamesController::class, 'create'])->name('create');  // 新しい試合（＋成績）を追加
     Route::post('/', [GamesController::class, 'store'])->name('store');        // 試合の保存
 
+    Route::get('upcoming/create', [GamesController::class, 'createUpcoming'])->name('upcoming.create'); // 次の試合の予定を追加
+    Route::post('upcoming', [GamesController::class, 'storeUpcoming'])->name('upcoming.store');         // 次の試合の予定を保存
+
     Route::get('{game}', [GamesController::class, 'show'])->name('show');      // ボックススコア表示（詳細）
 
     Route::get('{game}/edit', [GamesController::class, 'edit'])->name('edit'); // 編集画面（必要なら）
