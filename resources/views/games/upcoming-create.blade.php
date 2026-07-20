@@ -73,12 +73,12 @@
     </div>
 
     <div class="mt-4">
-        <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="text-blue-600 hover:underline">＋選手を追加</button>
+        <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="text-bf-navy hover:underline">＋選手を追加</button>
         <p id="lineup-max-message" class="text-sm text-red-600 mt-1 hidden">選手は最大20人まで登録できます</p>
     </div>
 
     <div class="mt-6">
-        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition">
+        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-lg hover:bg-bf-navy-light transition">
             保存する
         </button>
     </div>

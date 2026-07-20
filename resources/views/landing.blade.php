@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MyDugout - 野球スコア管理アプリ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="relative bg-gray-900 text-white overflow-hidden">
 
@@ -29,7 +29,7 @@
                 チームの試合結果・選手成績を簡単に記録＆共有できる野球スコア管理アプリ
             </p>
             <a href="{{ route('games.index') }}"
-               class="inline-block mt-4 bg-green-600 text-white px-6 py-3 rounded-full shadow hover:bg-green-700 transition">
+               class="inline-block mt-4 bg-bf-navy text-white px-6 py-3 rounded-lg shadow hover:bg-bf-navy-light transition">
                 アプリを使ってみる
             </a>
         </section>
@@ -54,7 +54,7 @@
         <footer class="text-center text-xs text-gray-400">
             &copy; 2025 MyDugout. Built by Ryo Imaoka.
             <br>
-            <a href="{{ route('how-to') }}" class="text-green-300 hover:underline">使い方ガイド</a>
+            <a href="{{ route('how-to') }}" class="text-bf-gold hover:underline">使い方ガイド</a>
         </footer>
     </div>
 

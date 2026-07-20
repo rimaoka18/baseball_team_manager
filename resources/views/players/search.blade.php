@@ -14,7 +14,7 @@
             class="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400">
         <button
             type="submit"
-            class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition w-full sm:w-auto">
+            class="bg-bf-navy text-white px-4 py-2 rounded-lg hover:bg-bf-navy-light transition w-full sm:w-auto">
             検索
         </button>
     </form>
@@ -22,7 +22,7 @@
     <!-- Search Result -->
     @if ($player)
     <div class="bg-white shadow-md rounded-xl p-6">
-        <h2 class="text-xl font-semibold mb-4 text-blue-800">{{ $player->name }} の成績</h2>
+        <h2 class="text-xl font-semibold mb-4 text-bf-navy">{{ $player->name }} の成績</h2>
 
         @php
         $ab = $player->gameStats->sum('at_bats');
