@@ -2,9 +2,15 @@
 
 @section('content')
 
+<div class="space-y-6">
+
+<h2 class="text-lg font-bold">成績</h2>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+
 <div class="flex justify-center mb-6">
 	<a href="{{ route('players.search') }}"
-		class="inline-block bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
+		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
 		プレイヤー検索
 	</a>
 </div>
@@ -20,12 +26,12 @@
 			@endphp
 
 			@foreach ($topBatters as $entry)
-				<li class="flex justify-between py-2 border-b last:border-none">
+				<li class="flex justify-between items-center py-2 px-2 border-b last:border-none {{ $loopIndex === 0 ? 'border-l-4 border-bf-gold bg-bf-gold/10' : '' }}">
 					<span class="font-medium">
 						<span class="mr-1">{{ $medals[$loopIndex] ?? '' }}</span>
 						{{ $entry['player']->name }}
 					</span>
-					<span class="text-right font-semibold text-blue-700">
+					<span class="text-right font-semibold text-bf-navy">
 						{{ number_format($entry['avg'], 3) }}
 					</span>
 				</li>
@@ -48,12 +54,12 @@
 			@endphp
 
 			@foreach ($topPitchers as $entry)
-				<li class="flex justify-between py-2 border-b last:border-none">
+				<li class="flex justify-between items-center py-2 px-2 border-b last:border-none {{ $loopIndex === 0 ? 'border-l-4 border-bf-gold bg-bf-gold/10' : '' }}">
 					<span class="font-medium">
 						<span class="mr-1">{{ $medals[$loopIndex] ?? '' }}</span>
 						{{ $entry['player']->name }}
 					</span>
-					<span class="text-right font-semibold text-green-700">
+					<span class="text-right font-semibold text-bf-navy">
 						{{ number_format($entry['era'], 2) }}
 					</span>
 				</li>
@@ -65,6 +71,10 @@
 			@endif
 		</ul>
 	</div>
+</div>
+
+</div>
+
 </div>
 
 @endsection

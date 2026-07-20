@@ -2,15 +2,17 @@
 
 @section('content')
 
-<div class="bg-white shadow-md rounded-xl p-4">
-	<div class="flex items-center justify-between border-b pb-2 mb-4">
-		<h2 class="text-lg font-bold text-gray-800">次の試合</h2>
-		<a href="{{ route('games.upcoming.create') }}"
-			class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-1.5 rounded-full transition">
-			＋ 次の試合を作成
-		</a>
-	</div>
+<div class="space-y-6">
 
+<div class="flex items-center justify-between">
+	<h2 class="text-lg font-bold text-gray-800">次の試合</h2>
+	<a href="{{ route('games.upcoming.create') }}"
+		class="inline-block bg-bf-navy hover:bg-bf-navy-light text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition">
+		＋ 次の試合を作成
+	</a>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 	@if ($upcomingGames->isEmpty())
 		<p class="text-gray-500">予定されている試合はありません</p>
 	@else
@@ -20,7 +22,7 @@
 					<button type="button"
 						id="upcoming-tab-{{ $index }}"
 						onclick="showUpcomingGame({{ $index }})"
-						class="upcoming-tab-btn px-3 py-1 rounded-full text-sm font-medium transition {{ $index === 0 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+						class="upcoming-tab-btn px-3 py-1 rounded-full text-sm font-medium transition {{ $index === 0 ? 'bg-bf-navy text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
 						{{ \Illuminate\Support\Carbon::parse($game->game_date)->format('n/j') }}
 					</button>
 				@endforeach
@@ -37,7 +39,7 @@
 					</div>
 					<div class="flex gap-2">
 						<a href="{{ route('games.upcoming.edit', $game) }}"
-							class="bg-yellow-500 text-white text-sm px-3 py-1 rounded-full hover:bg-yellow-600">
+							class="border border-bf-navy text-bf-navy bg-white text-sm px-3 py-1 rounded-lg hover:bg-bf-cream">
 							編集
 						</a>
 					</div>
@@ -59,7 +61,7 @@
 					</ul>
 
 					@if ($game->lineups->count() > 9)
-						<button type="button" onclick="toggleLineupPreview(this, {{ $index }})" class="mt-3 text-blue-600 hover:underline text-sm">
+						<button type="button" onclick="toggleLineupPreview(this, {{ $index }})" class="mt-3 text-bf-navy hover:underline text-sm">
 							もっと見る
 						</button>
 					@endif
@@ -69,18 +71,20 @@
 	@endif
 </div>
 
+</div>
+
 <script>
 	function showUpcomingGame(index) {
 		document.querySelectorAll('.upcoming-game-panel').forEach(panel => panel.classList.add('hidden'));
 		document.getElementById('upcoming-panel-' + index).classList.remove('hidden');
 
 		document.querySelectorAll('.upcoming-tab-btn').forEach(btn => {
-			btn.classList.remove('bg-blue-600', 'text-white');
+			btn.classList.remove('bg-bf-navy', 'text-white');
 			btn.classList.add('bg-gray-100', 'text-gray-700');
 		});
 		const activeBtn = document.getElementById('upcoming-tab-' + index);
 		activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
-		activeBtn.classList.add('bg-blue-600', 'text-white');
+		activeBtn.classList.add('bg-bf-navy', 'text-white');
 	}
 
 	function toggleLineupPreview(button, index) {

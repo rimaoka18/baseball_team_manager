@@ -20,7 +20,7 @@
 
         <div class="flex justify-center gap-2 mt-4">
             <a href="{{ route('games.edit', $game) }}"
-                class="bg-yellow-500 text-white text-sm px-4 py-1.5 rounded-full hover:bg-yellow-600 transition">
+                class="border border-bf-navy text-bf-navy bg-white text-sm px-4 py-1.5 rounded-lg hover:bg-bf-cream transition">
                 編集
             </a>
             <form action="{{ route('games.destroy', $game) }}" method="POST"
@@ -28,7 +28,7 @@
                 @csrf
                 @method('DELETE')
                 <button type="submit"
-                    class="bg-red-500 text-white text-sm px-4 py-1.5 rounded-full hover:bg-red-600 transition">
+                    class="bg-red-50 text-red-600 border border-red-200 text-sm px-4 py-1.5 rounded-lg hover:bg-red-100 transition">
                     削除
                 </button>
             </form>

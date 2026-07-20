@@ -28,7 +28,7 @@
         names.forEach(function (name) {
             const item = document.createElement('li');
             item.textContent = name;
-            item.className = 'px-2 py-1 hover:bg-blue-100 cursor-pointer';
+            item.className = 'px-2 py-1 hover:bg-bf-cream cursor-pointer';
             item.addEventListener('mousedown', function (e) {
                 e.preventDefault();
                 input.value = name;
