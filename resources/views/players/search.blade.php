@@ -14,7 +14,7 @@
             class="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400">
         <button
             type="submit"
-            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full sm:w-auto">
+            class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition w-full sm:w-auto">
             検索
         </button>
     </form>
@@ -59,7 +59,7 @@
 
     <div class="mt-6">
         <a href="{{ route('games.index') }}"
-            class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold px-4 py-2 rounded-md shadow-sm transition">
+            class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
             ← スコアボードに戻る
         </a>
     </div>

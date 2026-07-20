@@ -88,7 +88,7 @@
     </div>
 
     <div class="mt-6">
-        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
+        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition">
             更新する
         </button>
     </div>

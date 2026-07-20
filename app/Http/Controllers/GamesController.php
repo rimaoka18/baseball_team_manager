@@ -10,6 +10,7 @@ use App\Models\PlayerGameStat;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\StoreUpcomingGameRequest;
 use App\Http\Requests\UpdateGameRequest;
+use App\Http\Requests\UpdateUpcomingGameRequest;
 use App\Services\PlayerStatService;
 
 class GamesController extends Controller
@@ -29,17 +30,28 @@ class GamesController extends Controller
 
     public function index()
     {
-        $topBatters = $this->playerStatService->getTopBattingAverages();
-        $topPitchers = $this->playerStatService->getTopERA();
         $games = $this->game->orderBy('game_date', 'desc')->get();
 
+        return view('games.index', compact('games'));
+    }
+
+    public function upcoming()
+    {
         $upcomingGames = $this->game->whereNull('team_score')
             ->whereDate('game_date', '>=', now()->toDateString())
             ->orderBy('game_date')
             ->with(['lineups' => fn($query) => $query->with('player')->orderBy('batting_order')])
             ->get();
 
-        return view('games.index', compact('games', 'topBatters', 'topPitchers', 'upcomingGames'));
+        return view('games.upcoming', compact('upcomingGames'));
+    }
+
+    public function stats()
+    {
+        $topBatters = $this->playerStatService->getTopBattingAverages();
+        $topPitchers = $this->playerStatService->getTopERA();
+
+        return view('games.stats', compact('topBatters', 'topPitchers'));
     }
 
     public function show(Game $game)
@@ -55,7 +67,11 @@ class GamesController extends Controller
         $hitting = $stats;
         $pitching = $stats->filter(fn($s) => $s->innings_pitched !== null);
 
-        return view('games.show', compact('game', 'hitting', 'pitching'));
+        $lineups = $stats->isEmpty()
+            ? $game->lineups()->with('player')->orderBy('batting_order')->get()
+            : collect();
+
+        return view('games.show', compact('game', 'hitting', 'pitching', 'lineups'));
     }
 
 
@@ -131,7 +147,60 @@ class GamesController extends Controller
             ]);
         }
 
-        return redirect()->route('games.index')->with('success', '次の試合の予定を登録しました！');
+        return redirect()->route('games.upcoming.index')->with('success', '次の試合の予定を登録しました！');
+    }
+
+    public function editUpcoming(Game $game)
+    {
+        $lineups = $game->lineups()->with('player')->orderBy('batting_order')->get();
+
+        return view('games.upcoming-edit', compact('game', 'lineups'));
+    }
+
+    public function updateUpcoming(UpdateUpcomingGameRequest $request, Game $game)
+    {
+        $game->update([
+            'game_date' => $request->game_date,
+            'location' => $request->location,
+            'opponent' => $request->opponent,
+        ]);
+
+        $keptLineupIds = [];
+
+        foreach ($request->player_names as $index => $name) {
+            $name = trim($name);
+            $lineupId = ($request->lineup_ids ?? [])[$index] ?? null;
+
+            if ($name === '') {
+                continue;
+            }
+
+            $player = Player::firstOrCreate(['name' => $name]);
+
+            $lineup = $lineupId ? Lineup::find($lineupId) : null;
+
+            if ($lineup) {
+                $lineup->update([
+                    'player_id' => $player->id,
+                    'batting_order' => $index + 1,
+                    'position' => $request->position[$index] ?? '',
+                ]);
+            } else {
+                $lineup = Lineup::create([
+                    'game_id' => $game->id,
+                    'player_id' => $player->id,
+                    'batting_order' => $index + 1,
+                    'position' => $request->position[$index] ?? '',
+                ]);
+            }
+
+            $keptLineupIds[] = $lineup->id;
+        }
+
+        // Any existing lineup rows whose name was cleared out get removed.
+        $game->lineups()->whereNotIn('id', $keptLineupIds)->delete();
+
+        return redirect()->route('games.upcoming.index')->with('success', '次の試合の予定を更新しました！');
     }
 
     public function edit(Game $game)
@@ -211,14 +280,24 @@ class GamesController extends Controller
             ])->save();
         }
 
-        return redirect()->route('games.index')->with('success', '試合情報を更新しました！');
+        if (is_null($game->team_score) || is_null($game->opponent_score)) {
+            return redirect()->route('games.upcoming.index')->with('success', '試合情報を更新しました！');
+        }
+
+        return redirect()->route('games.show', $game)->with('success', '試合情報を更新しました！');
     }
 
     public function destroy(Game $game)
     {
+        $wasUpcoming = is_null($game->team_score) || is_null($game->opponent_score);
+
         $game->playerGameStats()->delete();
 
         $game->delete();
+
+        if ($wasUpcoming) {
+            return redirect()->route('games.upcoming.index')->with('success', '試合を削除しました');
+        }
 
         return redirect()->route('games.index')->with('success', '試合を削除しました');
     }

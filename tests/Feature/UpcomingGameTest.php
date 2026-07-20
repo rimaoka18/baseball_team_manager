@@ -31,7 +31,7 @@ class UpcomingGameTest extends TestCase
             'position' => ['P', 'C', ''],
         ]);
 
-        $response->assertRedirect(route('games.index'));
+        $response->assertRedirect(route('games.upcoming.index'));
 
         $this->assertDatabaseHas('games', [
             'opponent' => 'Rival Sharks',
@@ -88,7 +88,7 @@ class UpcomingGameTest extends TestCase
             'position' => ['P'],
         ]);
 
-        $response->assertRedirect(route('games.index'));
+        $response->assertRedirect(route('games.upcoming.index'));
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('players', ['name' => '今岡　稓']);
     }
@@ -110,7 +110,7 @@ class UpcomingGameTest extends TestCase
         $this->assertDatabaseMissing('games', ['opponent' => 'Rival Sharks']);
     }
 
-    public function test_games_index_shows_the_first_nine_lineup_spots_and_hides_the_rest(): void
+    public function test_upcoming_index_shows_the_first_nine_lineup_spots_and_hides_the_rest(): void
     {
         $game = Game::create([
             'game_date' => '2026-08-01',
@@ -128,7 +128,7 @@ class UpcomingGameTest extends TestCase
             ]);
         }
 
-        $response = $this->get(route('games.index'));
+        $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
         $response->assertSee('Many Batters FC');
@@ -138,7 +138,7 @@ class UpcomingGameTest extends TestCase
         $this->assertSame(3, substr_count($this->lineupListHtml($response->getContent(), 0), 'upcoming-lineup-extra-0'));
     }
 
-    public function test_games_index_does_not_show_more_link_when_lineup_has_nine_or_fewer(): void
+    public function test_upcoming_index_does_not_show_more_link_when_lineup_has_nine_or_fewer(): void
     {
         $game = Game::create([
             'game_date' => '2026-08-01',
@@ -156,7 +156,7 @@ class UpcomingGameTest extends TestCase
             ]);
         }
 
-        $response = $this->get(route('games.index'));
+        $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
         $response->assertDontSee('onclick="toggleLineupPreview(this, 0)"', false);
@@ -171,12 +171,12 @@ class UpcomingGameTest extends TestCase
         return substr($html, $start, $end - $start);
     }
 
-    public function test_games_index_shows_tabs_when_there_are_multiple_upcoming_games(): void
+    public function test_upcoming_index_shows_tabs_when_there_are_multiple_upcoming_games(): void
     {
         $gameOne = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
         $gameTwo = Game::create(['game_date' => '2026-07-21', 'location' => 'Field B', 'opponent' => 'Team B']);
 
-        $response = $this->get(route('games.index'));
+        $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
         $response->assertSee('id="upcoming-tab-0"', false);
@@ -188,17 +188,20 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('id="upcoming-panel-0" class="upcoming-game-panel "', false);
         $response->assertSee('id="upcoming-panel-1" class="upcoming-game-panel hidden"', false);
 
+        $response->assertSee(route('games.upcoming.edit', $gameOne));
+        $response->assertSee(route('games.upcoming.edit', $gameTwo));
         $response->assertSee(route('games.edit', $gameOne));
         $response->assertSee(route('games.edit', $gameTwo));
-        $response->assertSee(route('games.destroy', $gameOne));
-        $response->assertSee(route('games.destroy', $gameTwo));
+
+        // Cancelling now lives on the upcoming-edit page, not the panel itself.
+        $response->assertDontSee('この試合の予定をキャンセルしますか');
     }
 
-    public function test_games_index_does_not_show_tabs_for_a_single_upcoming_game(): void
+    public function test_upcoming_index_does_not_show_tabs_for_a_single_upcoming_game(): void
     {
         Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
 
-        $response = $this->get(route('games.index'));
+        $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
         $response->assertDontSee('id="upcoming-tab-0"', false);
@@ -212,9 +215,127 @@ class UpcomingGameTest extends TestCase
 
         $response = $this->delete(route('games.destroy', $game));
 
-        $response->assertRedirect(route('games.index'));
+        $response->assertRedirect(route('games.upcoming.index'));
         $this->assertDatabaseMissing('games', ['id' => $game->id]);
         $this->assertDatabaseMissing('lineups', ['game_id' => $game->id]);
+    }
+
+    public function test_upcoming_edit_page_shows_lineup_with_batting_order_and_position(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太郎']);
+        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.upcoming.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('山田 太郎');
+        $response->assertSee('name="lineup_ids[]" value="' . $lineup->id . '"', false);
+        $response->assertSee(route('games.destroy', $game));
+        $response->assertSee('キャンセル');
+    }
+
+    public function test_updating_upcoming_lineup_renames_existing_slot_without_creating_a_duplicate_player(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太朗']);
+        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->put(route('games.upcoming.update', $game), [
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+            'player_names' => ['山田 太郎'],
+            'position' => ['C'],
+            'lineup_ids' => [$lineup->id],
+        ]);
+
+        $response->assertRedirect(route('games.upcoming.index'));
+
+        $lineup->refresh();
+        $this->assertSame('C', $lineup->position);
+        $this->assertSame('山田 太郎', $lineup->player->name);
+        $this->assertSame(1, Lineup::where('game_id', $game->id)->count());
+    }
+
+    public function test_updating_upcoming_lineup_adds_a_new_slot_and_removes_a_cleared_one(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太郎']);
+        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->put(route('games.upcoming.update', $game), [
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+            'player_names' => ['', '鈴木 一郎'],
+            'position' => ['', 'C'],
+            'lineup_ids' => [$lineup->id, ''],
+        ]);
+
+        $response->assertRedirect(route('games.upcoming.index'));
+
+        $this->assertDatabaseMissing('lineups', ['id' => $lineup->id]);
+        $this->assertDatabaseHas('lineups', [
+            'game_id' => $game->id,
+            'batting_order' => 2,
+            'position' => 'C',
+        ]);
+        $this->assertSame(1, Lineup::where('game_id', $game->id)->count());
+    }
+
+    public function test_show_page_displays_lineup_when_no_score_has_been_entered_yet(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太郎']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.show', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('スターティングラインナップ');
+        $response->assertSee('山田 太郎');
+        $response->assertDontSee('バッティング成績');
+    }
+
+    public function test_show_page_displays_stats_instead_of_lineup_once_a_score_exists(): void
+    {
+        $game = Game::create([
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+            'team_score' => 5,
+            'opponent_score' => 2,
+        ]);
+        $player = Player::create(['name' => '山田 太郎']);
+        PlayerGameStat::create([
+            'game_id' => $game->id,
+            'player_id' => $player->id,
+            'at_bats' => 4,
+            'hits' => 2,
+        ]);
+
+        $response = $this->get(route('games.show', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('バッティング成績');
+        $response->assertDontSee('スターティングラインナップ');
+    }
+
+    public function test_deleting_a_completed_game_redirects_to_the_games_list(): void
+    {
+        $game = Game::create([
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+            'team_score' => 5,
+            'opponent_score' => 2,
+        ]);
+
+        $response = $this->delete(route('games.destroy', $game));
+
+        $response->assertRedirect(route('games.index'));
+        $this->assertDatabaseMissing('games', ['id' => $game->id]);
     }
 
     public function test_updating_an_upcoming_game_without_a_score_only_fixes_the_player_name(): void
@@ -242,7 +363,7 @@ class UpcomingGameTest extends TestCase
             'lineup_ids' => [$lineup->id],
         ]);
 
-        $response->assertRedirect(route('games.index'));
+        $response->assertRedirect(route('games.upcoming.index'));
         $response->assertSessionHasNoErrors();
 
         $game->refresh();
@@ -312,7 +433,7 @@ class UpcomingGameTest extends TestCase
             'h' => [2],
         ]);
 
-        $response->assertRedirect(route('games.index'));
+        $response->assertRedirect(route('games.show', $game));
 
         $game->refresh();
         $this->assertSame(5, $game->team_score);
@@ -328,7 +449,7 @@ class UpcomingGameTest extends TestCase
         $this->assertSame(1, Player::where('name', '山田 太郎')->count());
     }
 
-    public function test_games_index_shows_message_when_no_upcoming_game(): void
+    public function test_upcoming_index_shows_message_when_no_upcoming_game(): void
     {
         Game::create([
             'game_date' => '2026-01-01',
@@ -338,13 +459,27 @@ class UpcomingGameTest extends TestCase
             'opponent_score' => 2,
         ]);
 
-        $response = $this->get(route('games.index'));
+        $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
         $response->assertSee('予定されている試合はありません');
     }
 
-    public function test_games_index_excludes_a_past_dated_unscored_game_from_upcoming_but_flags_it_in_the_list(): void
+    public function test_upcoming_index_excludes_a_past_dated_unscored_game(): void
+    {
+        Game::create([
+            'game_date' => now()->subDay()->toDateString(),
+            'location' => 'Field A',
+            'opponent' => 'Yesterday FC',
+        ]);
+
+        $response = $this->get(route('games.upcoming.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('予定されている試合はありません');
+    }
+
+    public function test_games_index_flags_a_past_dated_unscored_game_as_missing_a_score(): void
     {
         Game::create([
             'game_date' => now()->subDay()->toDateString(),
@@ -355,12 +490,11 @@ class UpcomingGameTest extends TestCase
         $response = $this->get(route('games.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('予定されている試合はありません');
         $response->assertSee('Yesterday FC');
         $response->assertSee('スコア未入力');
     }
 
-    public function test_games_index_still_treats_todays_unscored_game_as_upcoming(): void
+    public function test_upcoming_index_still_treats_todays_unscored_game_as_upcoming(): void
     {
         Game::create([
             'game_date' => now()->toDateString(),
@@ -368,7 +502,7 @@ class UpcomingGameTest extends TestCase
             'opponent' => 'Today FC',
         ]);
 
-        $response = $this->get(route('games.index'));
+        $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
         $response->assertDontSee('予定されている試合はありません');

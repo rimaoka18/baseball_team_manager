@@ -12,25 +12,26 @@
 </div>
 @endif
 
-<h1 class="text-2xl font-bold mb-6">次の試合の予定</h1>
+<h1 class="text-2xl font-bold mb-6">次の試合の予定を編集</h1>
 
-<form action="{{ route('games.upcoming.store') }}" method="POST" class="space-y-6">
+<form action="{{ route('games.upcoming.update', $game) }}" method="POST" class="space-y-6">
     @csrf
+    @method('PUT')
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
             <label class="block text-sm font-medium">試合日</label>
-            <input type="date" name="game_date" value="{{ old('game_date') }}" required class="mt-1 w-full border rounded px-3 py-2">
+            <input type="date" name="game_date" value="{{ old('game_date', $game->game_date) }}" required class="mt-1 w-full border rounded px-3 py-2">
         </div>
 
         <div>
             <label class="block text-sm font-medium">場所</label>
-            <input type="text" name="location" value="{{ old('location') }}" required class="mt-1 w-full border rounded px-3 py-2">
+            <input type="text" name="location" value="{{ old('location', $game->location) }}" required class="mt-1 w-full border rounded px-3 py-2">
         </div>
 
         <div>
             <label class="block text-sm font-medium">相手チーム名</label>
-            <input type="text" name="opponent" value="{{ old('opponent') }}" required class="mt-1 w-full border rounded px-3 py-2">
+            <input type="text" name="opponent" value="{{ old('opponent', $game->opponent) }}" required class="mt-1 w-full border rounded px-3 py-2">
         </div>
     </div>
 
@@ -50,19 +51,26 @@
             <tbody id="lineup-rows">
                 @php
                     $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+                    $rowCount = max(9, $lineups->count());
                 @endphp
 
-                @for ($i = 0; $i < 9; $i++)
+                @for ($i = 0; $i < $rowCount; $i++)
+                    @php
+                        $lineup = $lineups->get($i);
+                    @endphp
                     <tr>
                         <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $i + 1 }}</td>
                         <td class="border px-2 py-1">
-                            <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="姓 名（例：山田 太郎）" class="w-40 px-1 py-1 border rounded">
+                            <input type="text" name="player_names[]"
+                                value="{{ old('player_names.' . $i, $lineup->player->name ?? '') }}"
+                                placeholder="姓 名（例：山田 太郎）" class="w-40 px-1 py-1 border rounded">
+                            <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup->id ?? '') }}">
                         </td>
                         <td class="border px-2 py-1">
                             <select name="position[]" class="w-24 px-1 py-1 border rounded">
                                 <option value="">-</option>
                                 @foreach ($positions as $position)
-                                    <option value="{{ $position }}" @selected(old('position.' . $i) === $position)>{{ $position }}</option>
+                                    <option value="{{ $position }}" @selected(old('position.' . $i, $lineup->position ?? '') === $position)>{{ $position }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -79,9 +87,18 @@
 
     <div class="mt-6">
         <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition">
-            保存する
+            更新する
         </button>
     </div>
+</form>
+
+<form action="{{ route('games.destroy', $game) }}" method="POST" class="mt-3"
+    onsubmit="return confirm('この試合の予定をキャンセルしますか？');">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 transition">
+        キャンセル
+    </button>
 </form>
 
 <script>
@@ -96,7 +113,7 @@
 
         const row = tbody.querySelector('tr:last-child');
         const newRow = row.cloneNode(true);
-        newRow.querySelectorAll('input').forEach(input => input.value = '');
+        newRow.querySelectorAll('input[type="text"], input[type="hidden"]').forEach(input => input.value = '');
         newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
         tbody.appendChild(newRow);
 
