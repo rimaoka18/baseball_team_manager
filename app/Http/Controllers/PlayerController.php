@@ -19,4 +19,20 @@ class PlayerController extends Controller
 
         return view('players.search', compact('player', 'query'));
     }
+
+    public function autocomplete(Request $request)
+    {
+        $query = trim((string) $request->input('q', ''));
+
+        if ($query === '') {
+            return response()->json([]);
+        }
+
+        $names = Player::where('name', 'like', "%{$query}%")
+            ->orderBy('name')
+            ->limit(8)
+            ->pluck('name');
+
+        return response()->json($names);
+    }
 }
