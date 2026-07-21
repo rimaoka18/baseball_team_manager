@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-6 bg-white p-6 rounded shadow">
+<div class="max-w-3xl mx-auto space-y-6 bg-bf-cream p-6 rounded shadow">
     <h1 class="text-2xl font-bold mb-4">使い方ガイド</h1>
 
     <section>

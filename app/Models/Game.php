@@ -8,6 +8,23 @@ class Game extends Model
 {
     protected $fillable = ['game_date', 'location', 'opponent', 'team_score', 'opponent_score'];
 
+    public function getResultAttribute(): ?string
+    {
+        if (is_null($this->team_score) || is_null($this->opponent_score)) {
+            return null;
+        }
+
+        if ($this->team_score > $this->opponent_score) {
+            return 'win';
+        }
+
+        if ($this->team_score < $this->opponent_score) {
+            return 'loss';
+        }
+
+        return 'tie';
+    }
+
     public function lineups()
     {
         return $this->hasMany(Lineup::class);

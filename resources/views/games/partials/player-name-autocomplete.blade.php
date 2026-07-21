@@ -20,7 +20,7 @@
 
         const rect = input.getBoundingClientRect();
         const list = document.createElement('ul');
-        list.className = 'absolute z-50 bg-white border border-gray-300 rounded shadow-md text-sm max-h-48 overflow-y-auto';
+        list.className = 'absolute z-50 bg-bf-cream border border-gray-300 rounded shadow-md text-sm max-h-48 overflow-y-auto';
         list.style.top = (rect.bottom + window.scrollY) + 'px';
         list.style.left = (rect.left + window.scrollX) + 'px';
         list.style.width = rect.width + 'px';
@@ -28,7 +28,7 @@
         names.forEach(function (name) {
             const item = document.createElement('li');
             item.textContent = name;
-            item.className = 'px-2 py-1 hover:bg-bf-cream cursor-pointer';
+            item.className = 'px-2 py-1 hover:bg-bf-gold/20 cursor-pointer';
             item.addEventListener('mousedown', function (e) {
                 e.preventDefault();
                 input.value = name;

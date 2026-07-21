@@ -51,8 +51,8 @@
     <h2 class="text-xl font-semibold mb-2">選手成績</h2>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border">
-            <thead class="bg-gray-100">
+        <table class="min-w-full text-sm border bg-bf-cream">
+            <thead class="bg-bf-navy text-white">
                 <tr>
                     <th class="px-2 py-1 border w-8"></th>
                     <th class="px-2 py-1 border">選手名</th>
@@ -71,7 +71,7 @@
                     <th class="px-2 py-1 border">K(P)</th>
                 </tr>
             </thead>
-            <tbody id="stat-rows">
+            <tbody id="stat-rows" class="text-gray-800">
                 @foreach ($stats as $stat)
                     <tr>
                         <td class="border px-2 py-1 text-center drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none">
@@ -107,11 +107,11 @@
     </div>
 
     <div class="mt-4">
-        <button type="button" id="add-stat-row-btn" onclick="addPlayerStatRow()" class="text-bf-navy hover:underline">＋選手を追加</button>
+        <button type="button" id="add-stat-row-btn" onclick="addPlayerStatRow()" class="inline-block bg-bf-cream text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-gold/20 transition">＋選手を追加</button>
     </div>
 
     <div class="mt-6">
-        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-lg hover:bg-bf-navy-light transition">
+        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition">
             更新する
         </button>
     </div>

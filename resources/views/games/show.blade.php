@@ -13,14 +13,14 @@
                 vs {{ $game->opponent }}
             @else
                 Blitz Fang {{ $game->team_score }}
-                <span class="text-sm text-gray-600">FINAL</span>
+                <span class="text-sm text-gray-400">FINAL</span>
                 {{ $game->opponent_score }} {{ $game->opponent }}
             @endif
         </h2>
 
         <div class="flex justify-center gap-2 mt-4">
             <a href="{{ route('games.edit', $game) }}"
-                class="border border-bf-navy text-bf-navy bg-white text-sm px-4 py-1.5 rounded-lg hover:bg-bf-cream transition">
+                class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-4 py-1.5 rounded-lg hover:bg-bf-gold/20 transition">
                 編集
             </a>
             <form action="{{ route('games.destroy', $game) }}" method="POST"
@@ -39,7 +39,7 @@
     @if ($lineups->isNotEmpty())
     <div>
         <h3 class="text-base md:text-lg font-semibold mb-2">スターティングラインナップ</h3>
-        <ul class="bg-white border rounded shadow-sm divide-y">
+        <ul class="bg-bf-cream border rounded shadow-sm divide-y text-gray-800">
             @foreach ($lineups as $lineup)
                 <li class="flex justify-between px-3 py-2 text-sm">
                     <span>
@@ -60,8 +60,8 @@
         <p class="text-xs text-gray-500 mb-2 md:hidden">表は横にスクロールできます</p>
 
         <div class="overflow-x-auto w-full">
-            <table class="min-w-[700px] w-full text-xs md:text-sm border shadow-sm rounded">
-                <thead class="bg-gray-100">
+            <table class="min-w-[700px] w-full text-xs md:text-sm border shadow-sm rounded bg-bf-cream">
+                <thead class="bg-bf-navy text-white">
                     <tr>
                         <th class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">選手名</th>
                         <th class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">AB</th>
@@ -74,7 +74,7 @@
                         <th class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">AVG</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-gray-800">
                     @foreach ($hitting as $stat)
                         <tr class="border-t hover:bg-gray-50">
                             <td class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">{{ $stat->player->name }}</td>
@@ -111,8 +111,8 @@
         <p class="text-xs text-gray-500 mb-2 md:hidden">表は横にスクロールできます</p>
 
         <div class="overflow-x-auto w-full">
-            <table class="min-w-[700px] w-full text-xs md:text-sm border shadow-sm rounded">
-                <thead class="bg-gray-100">
+            <table class="min-w-[700px] w-full text-xs md:text-sm border shadow-sm rounded bg-bf-cream">
+                <thead class="bg-bf-navy text-white">
                     <tr>
                         <th class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">投手名</th>
                         <th class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">IP</th>
@@ -124,7 +124,7 @@
                         <th class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">ERA</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-gray-800">
                     @foreach ($pitchingWithIP as $stat)
                         <tr class="border-t hover:bg-gray-50">
                             <td class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">{{ $stat->player->name }}</td>
