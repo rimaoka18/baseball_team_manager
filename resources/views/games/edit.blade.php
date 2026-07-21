@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+
+@if ($errors->any())
+<div class="bg-red-100 text-red-800 p-4 rounded mb-4">
+    <ul class="list-disc ml-5">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <h1 class="text-2xl font-bold mb-6">試合編集</h1>
 
 <form action="{{ route('games.update', $game) }}" method="POST" class="space-y-6">
@@ -43,6 +54,7 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-gray-100">
                 <tr>
+                    <th class="px-2 py-1 border w-8"></th>
                     <th class="px-2 py-1 border">選手名</th>
                     <th class="px-2 py-1 border">AB</th>
                     <th class="px-2 py-1 border">R</th>
@@ -59,9 +71,16 @@
                     <th class="px-2 py-1 border">K(P)</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="stat-rows">
                 @foreach ($stats as $stat)
                     <tr>
+                        <td class="border px-2 py-1 text-center drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none">
+                            <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+                                <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                                <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
+                            </svg>
+                        </td>
                         <td class="border px-2 py-1">
                             <input type="text" name="player_names[]" value="{{ $stat->player->name }}"
                                    class="w-32 border rounded px-2 py-1" required>
@@ -87,6 +106,10 @@
         </table>
     </div>
 
+    <div class="mt-4">
+        <button type="button" id="add-stat-row-btn" onclick="addPlayerStatRow()" class="text-bf-navy hover:underline">＋選手を追加</button>
+    </div>
+
     <div class="mt-6">
         <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-lg hover:bg-bf-navy-light transition">
             更新する
@@ -95,5 +118,74 @@
 </form>
 
 @include('games.partials.player-name-autocomplete')
+
+<script>
+    function addPlayerStatRow() {
+        const tbody = document.getElementById('stat-rows');
+        const row = tbody.querySelector('tr:last-child');
+        const newRow = row.cloneNode(true);
+        newRow.querySelectorAll('input[type="text"], input[type="hidden"], input[type="number"]').forEach(input => input.value = '');
+        tbody.appendChild(newRow);
+    }
+
+    (function () {
+        const tbody = document.getElementById('stat-rows');
+        let draggedRow = null;
+        let draggedHandle = null;
+        let pointerId = null;
+
+        function rowAtPoint(x, y) {
+            const el = document.elementFromPoint(x, y);
+            const row = el && el.closest('tr');
+            return (row && row.parentElement === tbody) ? row : null;
+        }
+
+        function endDrag() {
+            if (draggedHandle && pointerId !== null && draggedHandle.hasPointerCapture(pointerId)) {
+                draggedHandle.releasePointerCapture(pointerId);
+            }
+            if (draggedRow) {
+                draggedRow.classList.remove('opacity-50', 'shadow-lg', 'relative', 'z-10');
+            }
+            draggedRow = null;
+            draggedHandle = null;
+            pointerId = null;
+        }
+
+        tbody.addEventListener('pointerdown', (e) => {
+            const handle = e.target.closest('.drag-handle');
+            if (!handle) return;
+
+            draggedRow = handle.closest('tr');
+            draggedHandle = handle;
+            pointerId = e.pointerId;
+            handle.setPointerCapture(pointerId);
+            draggedRow.classList.add('opacity-50', 'shadow-lg', 'relative', 'z-10');
+            e.preventDefault();
+        });
+
+        tbody.addEventListener('pointermove', (e) => {
+            if (!draggedRow || e.pointerId !== pointerId) return;
+            e.preventDefault();
+
+            const targetRow = rowAtPoint(e.clientX, e.clientY);
+            if (!targetRow || targetRow === draggedRow) return;
+
+            const rect = targetRow.getBoundingClientRect();
+            const isAfter = (e.clientY - rect.top) > rect.height / 2;
+            tbody.insertBefore(draggedRow, isAfter ? targetRow.nextSibling : targetRow);
+        });
+
+        tbody.addEventListener('pointerup', (e) => {
+            if (e.pointerId !== pointerId) return;
+            endDrag();
+        });
+
+        tbody.addEventListener('pointercancel', (e) => {
+            if (e.pointerId !== pointerId) return;
+            endDrag();
+        });
+    })();
+</script>
 
 @endsection

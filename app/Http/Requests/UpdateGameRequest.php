@@ -2,10 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidatesUniquePlayerNames;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGameRequest extends FormRequest
 {
+    use ValidatesUniquePlayerNames;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -44,5 +48,10 @@ class UpdateGameRequest extends FormRequest
             'pbb.*' => 'nullable|integer|min:0',
             'pk.*' => 'nullable|integer|min:0',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $this->validateUniquePlayerNames($validator);
     }
 }

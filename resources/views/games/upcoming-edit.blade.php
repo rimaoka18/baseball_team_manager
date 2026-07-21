@@ -100,12 +100,12 @@
     </div>
 </form>
 
-<form action="{{ route('games.destroy', $game) }}" method="POST" class="mt-3"
-    onsubmit="return confirm('この試合の予定をキャンセルしますか？');">
+<form action="{{ route('games.destroy', $game) }}" method="POST" class="mt-6 pt-6 border-t border-gray-200"
+    onsubmit="return confirm('本当に削除しますか？');">
     @csrf
     @method('DELETE')
     <button type="submit" class="bg-red-50 text-red-600 border border-red-200 px-6 py-2 rounded-lg hover:bg-red-100 transition">
-        キャンセル
+        この試合を削除
     </button>
 </form>
 

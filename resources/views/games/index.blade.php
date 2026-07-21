@@ -39,12 +39,11 @@
 			default => '予定',
 		};
 
-		$detailRoute = $result
-			? route('games.show', $game)
-			: route('games.upcoming.edit', $game);
+		$hasScore = (bool) $result;
+		$scoreActionLabel = $hasScore ? '試合結果' : '試合結果を入力';
+		$scoreActionRoute = $hasScore ? route('games.show', $game) : route('games.edit', $game);
 	@endphp
-	<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 cursor-pointer hover:shadow-md hover:border-bf-navy/30 transition"
-		onclick="window.location='{{ $detailRoute }}'">
+	<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-2">
 				<span class="text-gray-500 text-sm">{{ $game->game_date }}</span>
@@ -55,31 +54,33 @@
 			</span>
 		</div>
 
-		<div class="text-center mt-3">
-			@if ($result)
-				<div class="text-3xl font-bold text-bf-navy">
-					{{ $game->team_score }} - {{ $game->opponent_score }}
-				</div>
-				<div class="text-gray-400 text-xs mt-1 h-4">vs {{ $game->opponent }}</div>
-			@else
-				<div class="text-2xl font-semibold text-gray-300">- vs -</div>
-				<div class="text-gray-400 text-xs mt-1 h-4">{{ $game->location }}</div>
-			@endif
+		<div class="relative mt-3">
+			<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="absolute left-1/4 top-1/2 -translate-y-1/2 w-20 h-20 rounded-full object-cover border border-gray-200">
+			<div class="text-center">
+				@if ($result)
+					<div class="text-3xl font-bold text-bf-navy leading-tight">
+						{{ $game->team_score }} - {{ $game->opponent_score }}
+					</div>
+					<div class="text-gray-400 text-xs mt-1 h-5">vs {{ $game->opponent }}</div>
+				@else
+					<div class="text-2xl font-semibold text-gray-300 leading-tight">- vs -</div>
+					<div class="text-gray-400 text-xs mt-1 h-5">{{ $game->location }}</div>
+				@endif
+			</div>
 		</div>
 
-		<div class="flex justify-end mt-3">
-			<form action="{{ route('games.destroy', $game) }}" method="POST"
-				onclick="event.stopPropagation()"
-				onsubmit="return confirm('本当に削除しますか？');">
-				@csrf
-				@method('DELETE')
-				<button type="submit" aria-label="削除"
-					class="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full p-1.5 transition">
-					<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3m3 0-.867 12.142A2 2 0 0 1 15.138 21H8.862a2 2 0 0 1-1.995-1.858L6 7h12Z" />
-					</svg>
-				</button>
-			</form>
+		<div class="flex items-center justify-end gap-2 mt-3">
+			@unless ($hasScore)
+				<a href="{{ route('games.upcoming.edit', $game) }}"
+					class="border border-bf-navy text-bf-navy bg-white text-sm px-4 py-1.5 rounded-lg hover:bg-bf-cream transition">
+					予定・スタメンを編集
+				</a>
+			@endunless
+
+			<a href="{{ $scoreActionRoute }}"
+				class="bg-bf-navy text-white text-sm px-4 py-1.5 rounded-lg hover:bg-bf-navy-light transition">
+				{{ $scoreActionLabel }}
+			</a>
 		</div>
 	</div>
 	@endforeach

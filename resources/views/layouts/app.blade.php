@@ -8,9 +8,9 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
     <header class="bg-white border-b">
-        <div class="max-w-5xl mx-auto px-4 py-4">
-            <div class="flex items-center gap-3 mb-3">
-                <span class="inline-block w-1.5 h-7 bg-bf-gold rounded-full"></span>
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col items-center">
+            <div class="flex items-center gap-4 mb-3">
+                <img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="w-14 h-14 rounded-full object-cover border border-gray-200">
                 <h1 class="text-2xl font-extrabold">Blitz Fang スコアボード</h1>
             </div>
             <nav class="flex gap-1 bg-gray-100 rounded-xl p-1">
