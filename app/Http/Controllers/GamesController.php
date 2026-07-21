@@ -30,9 +30,15 @@ class GamesController extends Controller
 
     public function index()
     {
-        $games = $this->game->orderBy('game_date', 'desc')->get();
+        $upcomingGames = $this->game->whereNull('team_score')
+            ->orderBy('game_date', 'asc')
+            ->get();
 
-        return view('games.index', compact('games'));
+        $completedGames = $this->game->whereNotNull('team_score')
+            ->orderBy('game_date', 'desc')
+            ->get();
+
+        return view('games.index', compact('upcomingGames', 'completedGames'));
     }
 
     public function upcoming()

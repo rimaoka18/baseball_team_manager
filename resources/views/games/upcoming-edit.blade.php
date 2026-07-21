@@ -40,8 +40,8 @@
     <h2 class="text-xl font-semibold mb-2">スターティングラインナップ</h2>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border">
-            <thead class="bg-gray-100">
+        <table class="min-w-full text-sm border bg-bf-cream">
+            <thead class="bg-bf-navy text-white">
                 <tr>
                     <th class="px-2 py-1 border w-8"></th>
                     <th class="px-2 py-1 border">打順</th>
@@ -49,7 +49,7 @@
                     <th class="px-2 py-1 border">守備位置</th>
                 </tr>
             </thead>
-            <tbody id="lineup-rows">
+            <tbody id="lineup-rows" class="text-gray-800">
                 @php
                     $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
                     $rowCount = max(9, $lineups->count());
@@ -89,12 +89,12 @@
     </div>
 
     <div class="mt-4">
-        <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="text-bf-navy hover:underline">＋選手を追加</button>
+        <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="inline-block bg-bf-cream text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-gold/20 transition">＋選手を追加</button>
         <p id="lineup-max-message" class="text-sm text-red-600 mt-1 hidden">選手は最大20人まで登録できます</p>
     </div>
 
     <div class="mt-6">
-        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-lg hover:bg-bf-navy-light transition">
+        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition">
             更新する
         </button>
     </div>

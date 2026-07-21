@@ -50,8 +50,8 @@
     <h2 class="text-xl font-semibold mb-2">選手成績</h2>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border">
-            <thead class="bg-gray-100">
+        <table class="min-w-full text-sm border bg-bf-cream">
+            <thead class="bg-bf-navy text-white">
                 <tr>
                     <th class="px-2 py-1 border">選手名</th>
                     <th class="px-2 py-1 border">AB</th>
@@ -69,7 +69,7 @@
                     <th class="px-2 py-1 border">K(P)</th>
                 </tr>
             </thead>
-            <tbody id="player-rows">
+            <tbody id="player-rows" class="text-gray-800">
                 @php
                 $statInputs = ['ab', 'r', 'h', 'rbi', 'hr', 'bb', 'k', 'ip', 'ph', 'pr', 'er', 'pbb', 'pk'];
                 @endphp
@@ -100,11 +100,11 @@
     </div>
 
     <div class="mt-4">
-        <button type="button" onclick="addPlayerRow()" class="text-bf-navy hover:underline">＋選手を追加</button>
+        <button type="button" onclick="addPlayerRow()" class="inline-block bg-bf-cream text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-gold/20 transition">＋選手を追加</button>
     </div>
 
     <div class="mt-6">
-        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-lg hover:bg-bf-navy-light transition">
+        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition">
             保存する
         </button>
     </div>

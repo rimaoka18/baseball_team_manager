@@ -6,18 +6,18 @@
 
 <h2 class="text-lg font-bold">成績</h2>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+<div class="bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
 
 <div class="flex justify-center mb-6">
 	<a href="{{ route('players.search') }}"
-		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
+		class="inline-block bg-bf-navy hover:bg-bf-navy-light text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
 		プレイヤー検索
 	</a>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 	<!-- Batting AVG -->
-	<div class="bg-white shadow-md rounded-xl p-4">
+	<div class="bg-bf-cream shadow-md rounded-xl p-4">
 		<h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">打率ランキング</h2>
 		<ul>
 			@php
@@ -27,7 +27,7 @@
 
 			@foreach ($topBatters as $entry)
 				<li class="flex justify-between items-center py-2 px-2 border-b last:border-none {{ $loopIndex === 0 ? 'border-l-4 border-bf-gold bg-bf-gold/10' : '' }}">
-					<span class="font-medium">
+					<span class="font-medium text-gray-800">
 						<span class="mr-1">{{ $medals[$loopIndex] ?? '' }}</span>
 						{{ $entry['player']->name }}
 					</span>
@@ -39,13 +39,20 @@
 			@endforeach
 
 			@if (count($topBatters) === 0)
-				<li class="text-gray-500">データがありません</li>
+				<li class="flex flex-col items-center justify-center text-center py-8 px-4">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="w-9 h-9 text-gray-300 mb-3">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+					</svg>
+					<p class="text-gray-500 font-medium">まだ記録がありません</p>
+					<p class="text-gray-400 text-sm mt-1">試合結果を入力すると、ここにランキングが表示されます</p>
+					<a href="{{ route('games.create') }}" class="mt-3 text-sm text-bf-navy hover:text-bf-gold underline underline-offset-2">試合結果を追加</a>
+				</li>
 			@endif
 		</ul>
 	</div>
 
 	<!-- ERA -->
-	<div class="bg-white shadow-md rounded-xl p-4">
+	<div class="bg-bf-cream shadow-md rounded-xl p-4">
 		<h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">防御率ランキング</h2>
 		<ul>
 			@php
@@ -55,7 +62,7 @@
 
 			@foreach ($topPitchers as $entry)
 				<li class="flex justify-between items-center py-2 px-2 border-b last:border-none {{ $loopIndex === 0 ? 'border-l-4 border-bf-gold bg-bf-gold/10' : '' }}">
-					<span class="font-medium">
+					<span class="font-medium text-gray-800">
 						<span class="mr-1">{{ $medals[$loopIndex] ?? '' }}</span>
 						{{ $entry['player']->name }}
 					</span>
@@ -67,7 +74,14 @@
 			@endforeach
 
 			@if (count($topPitchers) === 0)
-				<li class="text-gray-500">データがありません</li>
+				<li class="flex flex-col items-center justify-center text-center py-8 px-4">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="w-9 h-9 text-gray-300 mb-3">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+					</svg>
+					<p class="text-gray-500 font-medium">まだ記録がありません</p>
+					<p class="text-gray-400 text-sm mt-1">試合結果を入力すると、ここにランキングが表示されます</p>
+					<a href="{{ route('games.create') }}" class="mt-3 text-sm text-bf-navy hover:text-bf-gold underline underline-offset-2">試合結果を追加</a>
+				</li>
 			@endif
 		</ul>
 	</div>
@@ -75,7 +89,7 @@
 
 </div>
 
-<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+<div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
 	<h2 class="text-lg font-bold text-gray-800 mb-4">全選手成績</h2>
 
 	<div class="overflow-x-auto">
@@ -102,7 +116,7 @@
 					</th>
 				</tr>
 			</thead>
-			<tbody id="player-stats-rows" class="divide-y divide-gray-100" data-sort-key="avg" data-sort-dir="desc">
+			<tbody id="player-stats-rows" class="divide-y divide-gray-100 text-gray-800" data-sort-key="avg" data-sort-dir="desc">
 				@foreach ($allPlayerStats as $row)
 					<tr class="hover:bg-gray-50"
 						data-name="{{ $row['player']->name }}"
