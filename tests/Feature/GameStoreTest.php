@@ -46,4 +46,52 @@ class GameStoreTest extends TestCase
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('players', ['name' => '今岡　稓']);
     }
+
+    public function test_storing_a_game_accepts_a_single_name(): void
+    {
+        $response = $this->post(route('games.store'), $this->validGamePayload([
+            'player_names' => ['山田'],
+        ]));
+
+        $response->assertRedirect(route('games.index'));
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('players', ['name' => '山田']);
+    }
+
+    public function test_storing_a_game_rejects_duplicate_player_names_in_the_same_submission(): void
+    {
+        $response = $this->post(route('games.store'), $this->validGamePayload([
+            'player_names' => ['今岡', '今岡'],
+            'ab' => [4, 3],
+            'h' => [2, 1],
+        ]));
+
+        $response->assertSessionHasErrors('player_names.1');
+        $this->assertSame(0, Player::where('name', '今岡')->count());
+    }
+
+    public function test_storing_a_game_rejects_duplicate_player_names_that_differ_only_by_whitespace(): void
+    {
+        $response = $this->post(route('games.store'), $this->validGamePayload([
+            'player_names' => ['今岡', '今岡　'],
+            'ab' => [4, 3],
+            'h' => [2, 1],
+        ]));
+
+        $response->assertSessionHasErrors('player_names.1');
+        $this->assertSame(0, Player::where('name', '今岡')->count());
+    }
+
+    public function test_storing_games_with_an_existing_single_name_reuses_the_same_player(): void
+    {
+        $this->post(route('games.store'), $this->validGamePayload([
+            'player_names' => ['今岡'],
+        ]));
+        $this->post(route('games.store'), $this->validGamePayload([
+            'opponent' => 'Other Team',
+            'player_names' => ['今岡'],
+        ]));
+
+        $this->assertSame(1, Player::where('name', '今岡')->count());
+    }
 }

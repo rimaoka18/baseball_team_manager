@@ -25,7 +25,7 @@
     <section>
         <h2 class="text-lg font-semibold mb-2">④ よくある質問</h2>
         <ul class="list-disc list-inside text-gray-700">
-            <li>Q: 名前は「山田 太郎」形式じゃないとダメですか？<br>→ A: はい、フルネームで入力してください。</li>
+            <li>Q: 名前は「山田 太郎」形式じゃないとダメですか？<br>→ A: いいえ、姓だけ・名だけでも登録できます。</li>
             <li>Q: 打席数を入力しないといけませんか？<br>→ A: 入力は任意ですが、打率を計算するには必要です。</li>
         </ul>
     </section>

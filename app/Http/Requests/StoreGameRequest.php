@@ -33,7 +33,7 @@ class StoreGameRequest extends FormRequest
             'opponent_score' => 'required|integer|min:0',
 
             'player_names' => 'required|array',
-            'player_names.*' => 'required|string|max:255|regex:/^\S+[\s\x{3000}]\S+$/u',
+            'player_names.*' => 'required|string|max:255',
 
             'ab.*' => 'nullable|integer|min:0',
             'r.*' => 'nullable|integer|min:0',
@@ -49,13 +49,6 @@ class StoreGameRequest extends FormRequest
             'er.*' => 'nullable|integer|min:0',
             'pbb.*' => 'nullable|integer|min:0',
             'pk.*' => 'nullable|integer|min:0',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'player_names.*.regex' => '姓と名を両方入力してください（例：山田 太郎）',
         ];
     }
 

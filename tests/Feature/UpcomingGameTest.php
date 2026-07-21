@@ -93,6 +93,35 @@ class UpcomingGameTest extends TestCase
         $this->assertDatabaseHas('players', ['name' => '今岡　稓']);
     }
 
+    public function test_storing_an_upcoming_game_accepts_a_single_name(): void
+    {
+        $response = $this->post(route('games.upcoming.store'), [
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+            'player_names' => ['山田'],
+            'position' => ['P'],
+        ]);
+
+        $response->assertRedirect(route('games.upcoming.index'));
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('players', ['name' => '山田']);
+    }
+
+    public function test_storing_an_upcoming_game_rejects_duplicate_player_names_in_the_same_submission(): void
+    {
+        $response = $this->post(route('games.upcoming.store'), [
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+            'player_names' => ['今岡', '今岡'],
+            'position' => ['P', 'C'],
+        ]);
+
+        $response->assertSessionHasErrors('player_names.1');
+        $this->assertSame(0, Player::where('name', '今岡')->count());
+    }
+
     public function test_storing_an_upcoming_game_rejects_more_than_twenty_players(): void
     {
         $names = array_fill(0, 21, '山田 太郎');
