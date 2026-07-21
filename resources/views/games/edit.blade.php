@@ -54,8 +54,8 @@
         $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
     @endphp
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border bg-bf-cream">
+    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+        <table class="min-w-full text-sm bg-bf-cream">
             <thead class="bg-bf-navy text-white">
                 <tr>
                     <th class="px-2 py-1 border w-8"></th>
