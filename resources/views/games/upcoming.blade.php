@@ -5,7 +5,7 @@
 <div class="space-y-6">
 
 <div class="flex items-center justify-between">
-	<h2 class="text-lg font-bold text-gray-800">次の試合</h2>
+	<h2 class="text-lg font-bold text-bf-cream">次の試合</h2>
 	<a href="{{ route('games.upcoming.create') }}"
 		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full transition">
 		＋ 次の試合を作成
@@ -14,7 +14,14 @@
 
 <div class="max-w-2xl mx-auto bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
 	@if ($upcomingGames->isEmpty())
-		<p class="text-gray-500">予定されている試合はありません</p>
+		<div class="text-center py-8">
+			<p class="text-gray-600 font-medium mb-1">予定されている試合はありません</p>
+			<p class="text-sm text-gray-500 mb-4">次の試合を作成してスタメンを登録しましょう</p>
+			<a href="{{ route('games.upcoming.create') }}"
+				class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
+				＋ 次の試合を作成
+			</a>
+		</div>
 	@else
 		@if ($upcomingGames->count() > 1)
 			<div class="flex flex-wrap gap-2 mb-4">
@@ -31,10 +38,10 @@
 
 		@foreach ($upcomingGames as $index => $game)
 			<div id="upcoming-panel-{{ $index }}" class="upcoming-game-panel {{ $index === 0 ? '' : 'hidden' }}">
-				<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-3">
+				<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-4">
 					<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
 						<span class="text-xl font-semibold text-gray-800">{{ \Illuminate\Support\Carbon::parse($game->game_date)->format('Y/m/d') }}</span>
-						<span class="text-gray-600">vs {{ $game->opponent ?? '未定' }}</span>
+						<span class="text-gray-700">vs {{ $game->opponent ?? '未定' }}</span>
 						<span class="text-gray-500 text-sm">@ {{ $game->location }}</span>
 					</div>
 					@php
@@ -57,7 +64,16 @@
 				</div>
 
 				@if ($game->lineups->isEmpty())
-					<p class="text-gray-500">スターティングラインナップは未登録です</p>
+					<div class="rounded-xl border border-dashed border-gray-300 bg-white/50 px-4 py-8 text-center">
+						<p class="text-gray-800 font-semibold mb-1">スタメン未登録</p>
+						<p class="text-sm text-gray-500 mb-4">打順と守備位置を登録するとここに表示されます</p>
+						@unless ($hasScore)
+							<a href="{{ route('games.upcoming.edit', $game) }}"
+								class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
+								スタメンを登録する
+							</a>
+						@endunless
+					</div>
 				@else
 					<div class="grid grid-cols-[2rem_minmax(0,1fr)_3.25rem_5.5rem] items-center gap-x-2 px-1 pb-2 text-sm text-gray-500 font-semibold tracking-wide">
 						<span class="text-center">打順</span>

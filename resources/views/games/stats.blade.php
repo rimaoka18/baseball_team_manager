@@ -126,10 +126,10 @@
 						data-ip="{{ $row['innings_pitched'] }}"
 						data-era="{{ is_null($row['era']) ? '' : $row['era'] }}">
 						<td class="px-4 py-2">{{ $row['player']->name }}</td>
-						<td class="px-4 py-2 text-right">{{ is_null($row['avg']) ? '-' : $row['at_bats'] }}</td>
-						<td class="px-4 py-2 text-right">{{ is_null($row['avg']) ? '-' : $row['hits'] }}</td>
+						<td class="px-4 py-2 text-right">{{ $row['at_bats'] }}</td>
+						<td class="px-4 py-2 text-right">{{ $row['hits'] }}</td>
 						<td class="px-4 py-2 text-right">{{ is_null($row['avg']) ? '-' : ltrim(number_format($row['avg'], 3), '0') }}</td>
-						<td class="px-4 py-2 text-right">{{ is_null($row['era']) ? '-' : number_format($row['innings_pitched'], 1) }}</td>
+						<td class="px-4 py-2 text-right">{{ $row['innings_pitched'] > 0 ? number_format($row['innings_pitched'], 1) : '-' }}</td>
 						<td class="px-4 py-2 text-right">{{ is_null($row['era']) ? '-' : number_format($row['era'], 2) }}</td>
 					</tr>
 				@endforeach

@@ -44,7 +44,8 @@ class PlayerStatService
                 'innings_pitched' => $player->gameStats->sum('innings_pitched'),
                 'era' => $this->getERAForPlayer($player),
             ])
-            ->filter(fn($row) => $row['at_bats'] > 0 || $row['innings_pitched'] > 0)
+            // Include players who appeared in a game even with 0 AB / 0 IP.
+            ->filter(fn($row) => $row['player']->gameStats->isNotEmpty())
             ->sortByDesc(fn($row) => $row['avg'] ?? -1)
             ->values();
     }
