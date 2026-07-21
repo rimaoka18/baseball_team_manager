@@ -78,7 +78,7 @@
                     <tr>
                     {{-- Player Name --}}
                     <td class="border px-2 py-1">
-                        <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="姓 名（例：山田 太郎）" required class="w-32 px-1 py-1 border rounded">
+                        <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="選手名（例：山田）" required class="w-32 px-1 py-1 border rounded">
                     </td>
 
                     {{-- Stat Inputs --}}

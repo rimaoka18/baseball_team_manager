@@ -9,9 +9,8 @@ trait ValidatesUniquePlayerNames
     /**
      * Reject player_names entries that refer to the same person more than
      * once in this submission. Full-width (　) and half-width ( ) spaces
-     * between 姓 and 名 are treated as equivalent, since both pass the
-     * existing per-field format validation but silently create duplicate
-     * Player records if not caught here.
+     * are treated as equivalent so "今岡　稜" and "今岡 稜" do not create
+     * duplicate Player records.
      */
     protected function validateUniquePlayerNames(Validator $validator): void
     {

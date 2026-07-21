@@ -56,7 +56,7 @@
                     <tr>
                         <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $i + 1 }}</td>
                         <td class="border px-2 py-1">
-                            <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="姓 名（例：山田 太郎）" class="w-40 px-1 py-1 border rounded">
+                            <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="選手名（例：山田）" class="w-40 px-1 py-1 border rounded">
                         </td>
                         <td class="border px-2 py-1">
                             <select name="position[]" class="w-24 px-1 py-1 border rounded">
