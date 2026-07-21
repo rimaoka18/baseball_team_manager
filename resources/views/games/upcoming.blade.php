@@ -48,23 +48,43 @@
 				@if ($game->lineups->isEmpty())
 					<p class="text-gray-500">スターティングラインナップは未登録です</p>
 				@else
-					<ul id="upcoming-lineup-preview-{{ $index }}">
+					<ul id="upcoming-lineup-preview-{{ $index }}" class="divide-y divide-gray-100">
 						@foreach ($game->lineups as $lineup)
-							<li class="flex justify-between py-1 border-b last:border-none {{ $loop->index >= 9 ? 'hidden upcoming-lineup-extra-' . $index : '' }}">
-								<span>
-									<span class="inline-block w-6 text-gray-500 text-sm">{{ $lineup->batting_order }}</span>
-									{{ $lineup->player->name }}
-								</span>
-								<span class="text-gray-500 text-sm">{{ $lineup->position }}</span>
+							@php
+								$isPitcher = $lineup->position === 'P';
+								$statValue = $isPitcher
+									? $playerStatService->getERAForPlayer($lineup->player)
+									: $playerStatService->getBattingAverageForPlayer($lineup->player);
+								$statLabel = $isPitcher ? '防御率' : '打率';
+								$statText = is_null($statValue)
+									? null
+									: ($isPitcher ? number_format($statValue, 2) : ltrim(number_format($statValue, 3), '0'));
+							@endphp
+							<li class="flex items-center justify-between py-3 px-1">
+								<div class="flex items-center gap-3">
+									<span class="w-8 h-8 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
+										{{ $lineup->batting_order }}
+									</span>
+									<span class="text-gray-800 font-medium">{{ $lineup->player->name }}</span>
+								</div>
+								<div class="flex flex-col items-end gap-1">
+									@if ($lineup->position)
+										<span class="bg-gray-100 text-gray-600 text-xs font-medium rounded-full px-3 py-1">
+											{{ $lineup->position }}
+										</span>
+									@endif
+
+									@if ($statText)
+										<span class="text-gray-500 text-sm">
+											{{ $statLabel }} <span class="font-medium">{{ $statText }}</span>
+										</span>
+									@else
+										<span class="text-gray-300 text-sm">未記録</span>
+									@endif
+								</div>
 							</li>
 						@endforeach
 					</ul>
-
-					@if ($game->lineups->count() > 9)
-						<button type="button" onclick="toggleLineupPreview(this, {{ $index }})" class="mt-3 text-bf-navy hover:underline text-sm">
-							もっと見る
-						</button>
-					@endif
 				@endif
 			</div>
 		@endforeach
@@ -85,13 +105,6 @@
 		const activeBtn = document.getElementById('upcoming-tab-' + index);
 		activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
 		activeBtn.classList.add('bg-bf-navy', 'text-white');
-	}
-
-	function toggleLineupPreview(button, index) {
-		const hidden = document.querySelectorAll('.upcoming-lineup-extra-' + index);
-		const expand = hidden.length > 0 && hidden[0].classList.contains('hidden');
-		hidden.forEach(row => row.classList.toggle('hidden', !expand));
-		button.textContent = expand ? '閉じる' : 'もっと見る';
 	}
 </script>
 

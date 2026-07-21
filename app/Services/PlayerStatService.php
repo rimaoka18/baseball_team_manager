@@ -10,16 +10,10 @@ class PlayerStatService
     {
         return Player::with('gameStats')
             ->get()
-            ->map(function ($player) {
-                $totalAB = $player->gameStats->sum('at_bats');
-                $totalHits = $player->gameStats->sum('hits');
-                $avg = $totalAB > 0 ? round($totalHits / $totalAB, 3) : 0;
-
-                return [
-                    'player' => $player,
-                    'avg' => $avg,
-                ];
-            })
+            ->map(fn($player) => [
+                'player' => $player,
+                'avg' => $this->getBattingAverageForPlayer($player) ?? 0,
+            ])
             ->filter(fn($row) => $row['avg'] > 0)
             ->sortByDesc('avg')
             ->take($limit);
@@ -29,18 +23,45 @@ class PlayerStatService
     {
         return Player::with('gameStats')
             ->get()
-            ->map(function ($player) {
-                $ip = $player->gameStats->sum('innings_pitched');
-                $er = $player->gameStats->sum('earned_runs');
-                $era = ($ip > 0 && $er !== null) ? round(($er * 9) / $ip, 2) : null;
-
-                return [
-                    'player' => $player,
-                    'era' => $era,
-                ];
-            })
+            ->map(fn($player) => [
+                'player' => $player,
+                'era' => $this->getERAForPlayer($player),
+            ])
             ->filter(fn($row) => $row['era'] !== null)
             ->sortBy('era')
             ->take($limit);
+    }
+
+    public function getAllPlayerStats()
+    {
+        return Player::with('gameStats')
+            ->get()
+            ->map(fn($player) => [
+                'player' => $player,
+                'at_bats' => $player->gameStats->sum('at_bats'),
+                'hits' => $player->gameStats->sum('hits'),
+                'avg' => $this->getBattingAverageForPlayer($player),
+                'innings_pitched' => $player->gameStats->sum('innings_pitched'),
+                'era' => $this->getERAForPlayer($player),
+            ])
+            ->filter(fn($row) => $row['at_bats'] > 0 || $row['innings_pitched'] > 0)
+            ->sortByDesc(fn($row) => $row['avg'] ?? -1)
+            ->values();
+    }
+
+    public function getBattingAverageForPlayer(Player $player)
+    {
+        $totalAB = $player->gameStats->sum('at_bats');
+        $totalHits = $player->gameStats->sum('hits');
+
+        return $totalAB > 0 ? round($totalHits / $totalAB, 3) : null;
+    }
+
+    public function getERAForPlayer(Player $player)
+    {
+        $ip = $player->gameStats->sum('innings_pitched');
+        $er = $player->gameStats->sum('earned_runs');
+
+        return ($ip > 0 && $er !== null) ? round(($er * 9) / $ip, 2) : null;
     }
 }
