@@ -89,8 +89,8 @@
                                 </svg>
                             </td>
                             <td class="border px-2 py-1">
-                                <input type="text" name="player_names[]" value="{{ $stat->player->name }}"
-                                       class="w-32 border rounded px-2 py-1" required>
+                                <input type="text" name="player_names[]" value="{{ $stat->player->name ?? '' }}"
+                                       placeholder="選手名（例：山田）" class="w-32 border rounded px-2 py-1">
                                 <input type="hidden" name="stat_ids[]" value="{{ $stat->id }}">
                                 <input type="hidden" name="lineup_ids[]" value="{{ $stat->lineup_id }}">
                             </td>

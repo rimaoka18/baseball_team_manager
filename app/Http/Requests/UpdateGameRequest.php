@@ -32,6 +32,7 @@ class UpdateGameRequest extends FormRequest
             'team_score' => 'nullable|integer|min:0',
             'opponent_score' => 'nullable|integer|min:0',
             'player_names' => 'required|array',
+            'player_names.*' => 'nullable|string|max:255',
             'stat_ids' => 'required|array',
             'position' => 'nullable|array',
             'position.*' => 'nullable|string|max:10',

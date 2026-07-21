@@ -72,15 +72,15 @@
                             <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $i + 1 }}</td>
                             <td class="border px-2 py-1">
                                 <input type="text" name="player_names[]"
-                                    value="{{ old('player_names.' . $i, $lineup->player->name ?? '') }}"
+                                    value="{{ old('player_names.' . $i, $lineup?->player?->name ?? '') }}"
                                     placeholder="選手名（例：山田）" class="w-40 px-1 py-1 border rounded">
-                                <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup->id ?? '') }}">
+                                <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup?->id ?? '') }}">
                             </td>
                             <td class="border px-2 py-1">
                                 <select name="position[]" class="w-24 px-1 py-1 border rounded">
                                     <option value="">-</option>
                                     @foreach ($positions as $position)
-                                        <option value="{{ $position }}" @selected(old('position.' . $i, $lineup->position ?? '') === $position)>{{ $position }}</option>
+                                        <option value="{{ $position }}" @selected(old('position.' . $i, $lineup?->position ?? '') === $position)>{{ $position }}</option>
                                     @endforeach
                                 </select>
                             </td>
