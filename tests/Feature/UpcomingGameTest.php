@@ -435,6 +435,57 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('name="lineup_ids[]" value="' . $lineup->id . '"', false);
     }
 
+    public function test_edit_page_shows_empty_stat_rows_when_upcoming_game_has_no_lineup(): void
+    {
+        $game = Game::create([
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+        ]);
+
+        $response = $this->get(route('games.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('選手成績');
+        $response->assertSee('name="player_names[]"', false);
+        $response->assertSee('name="position[]"', false);
+        $response->assertSee('name="stat_ids[]"', false);
+        $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'placeholder="選手名（例：山田）"'));
+    }
+
+    public function test_updating_a_game_with_no_lineup_creates_stats_from_empty_rows(): void
+    {
+        $game = Game::create([
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+        ]);
+
+        $response = $this->put(route('games.update', $game), [
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+            'team_score' => 5,
+            'opponent_score' => 2,
+            'player_names' => ['山田', '', ''],
+            'stat_ids' => ['', '', ''],
+            'lineup_ids' => ['', '', ''],
+            'position' => ['SS', '', ''],
+            'ab' => [4, '', ''],
+            'h' => [2, '', ''],
+        ]);
+
+        $response->assertRedirect(route('games.show', $game));
+        $this->assertDatabaseHas('players', ['name' => '山田']);
+        $this->assertDatabaseHas('player_game_stats', [
+            'game_id' => $game->id,
+            'position' => 'SS',
+            'at_bats' => 4,
+            'hits' => 2,
+        ]);
+        $this->assertSame(1, $game->playerGameStats()->count());
+    }
+
     public function test_updating_a_lineup_only_game_creates_stats_and_completes_the_game(): void
     {
         $game = Game::create([
