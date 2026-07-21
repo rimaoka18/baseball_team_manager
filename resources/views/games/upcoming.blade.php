@@ -12,7 +12,7 @@
 	</a>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 	@if ($upcomingGames->isEmpty())
 		<p class="text-gray-500">予定されている試合はありません</p>
 	@else
@@ -31,16 +31,27 @@
 
 		@foreach ($upcomingGames as $index => $game)
 			<div id="upcoming-panel-{{ $index }}" class="upcoming-game-panel {{ $index === 0 ? '' : 'hidden' }}">
-				<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-4">
+				<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-3">
 					<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
 						<span class="text-xl font-semibold">{{ \Illuminate\Support\Carbon::parse($game->game_date)->format('Y/m/d') }}</span>
 						<span class="text-gray-600">vs {{ $game->opponent ?? '未定' }}</span>
 						<span class="text-gray-500 text-sm">@ {{ $game->location }}</span>
 					</div>
+					@php
+						$hasScore = !is_null($game->team_score) && !is_null($game->opponent_score);
+						$scoreActionLabel = $hasScore ? '試合結果' : '試合結果を入力';
+						$scoreActionRoute = $hasScore ? route('games.show', $game) : route('games.edit', $game);
+					@endphp
 					<div class="flex gap-2">
-						<a href="{{ route('games.upcoming.edit', $game) }}"
-							class="border border-bf-navy text-bf-navy bg-white text-sm px-3 py-1 rounded-lg hover:bg-bf-cream">
-							編集
+						@unless ($hasScore)
+							<a href="{{ route('games.upcoming.edit', $game) }}"
+								class="border border-bf-navy text-bf-navy bg-white text-sm px-3 py-1 rounded-lg hover:bg-bf-cream">
+								予定・スタメンを編集
+							</a>
+						@endunless
+						<a href="{{ $scoreActionRoute }}"
+							class="bg-bf-navy text-white text-sm px-3 py-1 rounded-lg hover:bg-bf-navy-light">
+							{{ $scoreActionLabel }}
 						</a>
 					</div>
 				</div>
@@ -48,6 +59,17 @@
 				@if ($game->lineups->isEmpty())
 					<p class="text-gray-500">スターティングラインナップは未登録です</p>
 				@else
+					<div class="flex items-center justify-between px-1 pb-2 text-sm text-gray-500 font-semibold uppercase tracking-wide">
+						<div class="flex items-center gap-3">
+							<span class="w-8 text-center">打順</span>
+							<span>選手名</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<span>守備位置</span>
+							<span>成績</span>
+						</div>
+					</div>
+
 					<ul id="upcoming-lineup-preview-{{ $index }}" class="divide-y divide-gray-100">
 						@foreach ($game->lineups as $lineup)
 							@php
@@ -59,17 +81,23 @@
 								$statText = is_null($statValue)
 									? null
 									: ($isPitcher ? number_format($statValue, 2) : ltrim(number_format($statValue, 3), '0'));
+								$pillClass = match ($lineup->position) {
+									'P', 'C' => 'bg-bf-navy/10 text-bf-navy',
+									'1B', '2B', '3B', 'SS' => 'bg-bf-gold/15 text-bf-navy',
+									'LF', 'CF', 'RF' => 'bg-gray-100 text-gray-600',
+									default => 'bg-gray-100 text-gray-600',
+								};
 							@endphp
-							<li class="flex items-center justify-between py-3 px-1">
+							<li class="flex items-center justify-between py-2.5 px-1 odd:bg-gray-50/50">
 								<div class="flex items-center gap-3">
 									<span class="w-8 h-8 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
 										{{ $lineup->batting_order }}
 									</span>
 									<span class="text-gray-800 font-medium">{{ $lineup->player->name }}</span>
 								</div>
-								<div class="flex flex-col items-end gap-1">
+								<div class="flex items-center gap-2 justify-end">
 									@if ($lineup->position)
-										<span class="bg-gray-100 text-gray-600 text-xs font-medium rounded-full px-3 py-1">
+										<span class="{{ $pillClass }} text-xs font-medium rounded-full px-3 py-1">
 											{{ $lineup->position }}
 										</span>
 									@endif
@@ -79,7 +107,7 @@
 											{{ $statLabel }} <span class="font-medium">{{ $statText }}</span>
 										</span>
 									@else
-										<span class="text-gray-300 text-sm">未記録</span>
+										<span class="text-xs text-gray-300">{{ $statLabel }} 未記録</span>
 									@endif
 								</div>
 							</li>

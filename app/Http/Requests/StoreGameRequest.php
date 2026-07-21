@@ -2,10 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidatesUniquePlayerNames;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreGameRequest extends FormRequest
 {
+    use ValidatesUniquePlayerNames;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -53,5 +57,10 @@ class StoreGameRequest extends FormRequest
         return [
             'player_names.*.regex' => '姓と名を両方入力してください（例：山田 太郎）',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $this->validateUniquePlayerNames($validator);
     }
 }
