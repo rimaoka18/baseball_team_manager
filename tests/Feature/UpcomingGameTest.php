@@ -265,6 +265,23 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('キャンセル');
     }
 
+    public function test_upcoming_edit_page_shows_empty_rows_when_game_has_no_lineup(): void
+    {
+        $game = Game::create([
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+        ]);
+
+        $response = $this->get(route('games.upcoming.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('スターティングラインナップ');
+        $response->assertSee('name="player_names[]"', false);
+        $response->assertSee('name="position[]"', false);
+        $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'placeholder="選手名（例：山田）"'));
+    }
+
     public function test_updating_upcoming_lineup_renames_existing_slot_without_creating_a_duplicate_player(): void
     {
         $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
