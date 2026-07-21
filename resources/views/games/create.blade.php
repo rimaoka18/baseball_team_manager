@@ -53,7 +53,9 @@
         <table class="min-w-full text-sm border bg-bf-cream">
             <thead class="bg-bf-navy text-white">
                 <tr>
+                    <th class="px-2 py-1 border w-8"></th>
                     <th class="px-2 py-1 border">選手名</th>
+                    <th class="px-2 py-1 border">守備</th>
                     <th class="px-2 py-1 border">AB</th>
                     <th class="px-2 py-1 border">R</th>
                     <th class="px-2 py-1 border">H</th>
@@ -72,16 +74,30 @@
             <tbody id="player-rows" class="text-gray-800">
                 @php
                 $statInputs = ['ab', 'r', 'h', 'rbi', 'hr', 'bb', 'k', 'ip', 'ph', 'pr', 'er', 'pbb', 'pk'];
+                $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
                 @endphp
 
                 @for ($i = 0; $i < 9; $i++)
                     <tr>
-                    {{-- Player Name --}}
+                    <td class="border px-2 py-1 text-center drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                            <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+                            <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                            <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
+                        </svg>
+                    </td>
                     <td class="border px-2 py-1">
                         <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="選手名（例：山田）" required class="w-32 px-1 py-1 border rounded">
                     </td>
+                    <td class="border px-2 py-1">
+                        <select name="position[]" class="w-20 px-1 py-1 border rounded">
+                            <option value="">-</option>
+                            @foreach ($positions as $position)
+                                <option value="{{ $position }}" @selected(old('position.' . $i) === $position)>{{ $position }}</option>
+                            @endforeach
+                        </select>
+                    </td>
 
-                    {{-- Stat Inputs --}}
                     @foreach ($statInputs as $stat)
                     <td class="border px-2 py-1">
                         <input
@@ -116,10 +132,12 @@
         const row = tbody.querySelector('tr:last-child');
         const newRow = row.cloneNode(true);
         newRow.querySelectorAll('input').forEach(input => input.value = '');
+        newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
         tbody.appendChild(newRow);
     }
 </script>
 
+@include('games.partials.row-drag-script', ['tbodyId' => 'player-rows'])
 @include('games.partials.player-name-autocomplete')
 
 @endsection

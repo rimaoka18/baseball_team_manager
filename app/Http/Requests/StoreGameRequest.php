@@ -34,6 +34,8 @@ class StoreGameRequest extends FormRequest
 
             'player_names' => 'required|array',
             'player_names.*' => 'required|string|max:255',
+            'position' => 'nullable|array',
+            'position.*' => 'nullable|string|max:10',
 
             'ab.*' => 'nullable|integer|min:0',
             'r.*' => 'nullable|integer|min:0',

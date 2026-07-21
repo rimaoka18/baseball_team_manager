@@ -50,12 +50,17 @@
 
     <h2 class="text-xl font-semibold mb-2">選手成績</h2>
 
+    @php
+        $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+    @endphp
+
     <div class="overflow-x-auto">
         <table class="min-w-full text-sm border bg-bf-cream">
             <thead class="bg-bf-navy text-white">
                 <tr>
                     <th class="px-2 py-1 border w-8"></th>
                     <th class="px-2 py-1 border">選手名</th>
+                    <th class="px-2 py-1 border">守備</th>
                     <th class="px-2 py-1 border">AB</th>
                     <th class="px-2 py-1 border">R</th>
                     <th class="px-2 py-1 border">H</th>
@@ -86,6 +91,14 @@
                                    class="w-32 border rounded px-2 py-1" required>
                             <input type="hidden" name="stat_ids[]" value="{{ $stat->id }}">
                             <input type="hidden" name="lineup_ids[]" value="{{ $stat->lineup_id }}">
+                        </td>
+                        <td class="border px-2 py-1">
+                            <select name="position[]" class="w-20 px-1 py-1 border rounded">
+                                <option value="">-</option>
+                                @foreach ($positions as $position)
+                                    <option value="{{ $position }}" @selected(($stat->position ?? '') === $position)>{{ $position }}</option>
+                                @endforeach
+                            </select>
                         </td>
                         <td class="border px-2 py-1"><input type="number" name="ab[]" value="{{ $stat->at_bats }}" class="w-12 px-1 py-1 border rounded text-center"></td>
                         <td class="border px-2 py-1"><input type="number" name="r[]" value="{{ $stat->runs }}" class="w-12 px-1 py-1 border rounded text-center"></td>
@@ -125,67 +138,11 @@
         const row = tbody.querySelector('tr:last-child');
         const newRow = row.cloneNode(true);
         newRow.querySelectorAll('input[type="text"], input[type="hidden"], input[type="number"]').forEach(input => input.value = '');
+        newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
         tbody.appendChild(newRow);
     }
-
-    (function () {
-        const tbody = document.getElementById('stat-rows');
-        let draggedRow = null;
-        let draggedHandle = null;
-        let pointerId = null;
-
-        function rowAtPoint(x, y) {
-            const el = document.elementFromPoint(x, y);
-            const row = el && el.closest('tr');
-            return (row && row.parentElement === tbody) ? row : null;
-        }
-
-        function endDrag() {
-            if (draggedHandle && pointerId !== null && draggedHandle.hasPointerCapture(pointerId)) {
-                draggedHandle.releasePointerCapture(pointerId);
-            }
-            if (draggedRow) {
-                draggedRow.classList.remove('opacity-50', 'shadow-lg', 'relative', 'z-10');
-            }
-            draggedRow = null;
-            draggedHandle = null;
-            pointerId = null;
-        }
-
-        tbody.addEventListener('pointerdown', (e) => {
-            const handle = e.target.closest('.drag-handle');
-            if (!handle) return;
-
-            draggedRow = handle.closest('tr');
-            draggedHandle = handle;
-            pointerId = e.pointerId;
-            handle.setPointerCapture(pointerId);
-            draggedRow.classList.add('opacity-50', 'shadow-lg', 'relative', 'z-10');
-            e.preventDefault();
-        });
-
-        tbody.addEventListener('pointermove', (e) => {
-            if (!draggedRow || e.pointerId !== pointerId) return;
-            e.preventDefault();
-
-            const targetRow = rowAtPoint(e.clientX, e.clientY);
-            if (!targetRow || targetRow === draggedRow) return;
-
-            const rect = targetRow.getBoundingClientRect();
-            const isAfter = (e.clientY - rect.top) > rect.height / 2;
-            tbody.insertBefore(draggedRow, isAfter ? targetRow.nextSibling : targetRow);
-        });
-
-        tbody.addEventListener('pointerup', (e) => {
-            if (e.pointerId !== pointerId) return;
-            endDrag();
-        });
-
-        tbody.addEventListener('pointercancel', (e) => {
-            if (e.pointerId !== pointerId) return;
-            endDrag();
-        });
-    })();
 </script>
+
+@include('games.partials.row-drag-script', ['tbodyId' => 'stat-rows'])
 
 @endsection

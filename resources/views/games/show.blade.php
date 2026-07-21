@@ -41,12 +41,12 @@
         <h3 class="text-base md:text-lg font-semibold mb-2">スターティングラインナップ</h3>
         <ul class="bg-bf-cream border rounded shadow-sm divide-y text-gray-800">
             @foreach ($lineups as $lineup)
-                <li class="flex justify-between px-3 py-2 text-sm">
-                    <span>
-                        <span class="inline-block w-6 text-gray-500">{{ $lineup->batting_order }}</span>
-                        {{ $lineup->player->name }}
-                    </span>
-                    <span class="text-gray-500">{{ $lineup->position }}</span>
+                <li class="flex items-center gap-2 px-3 py-2 text-sm">
+                    <span class="inline-block w-6 text-gray-500">{{ $lineup->batting_order }}</span>
+                    <span class="font-medium">{{ $lineup->player->name }}</span>
+                    @if ($lineup->position)
+                        <span class="text-gray-500">{{ $lineup->position }}</span>
+                    @endif
                 </li>
             @endforeach
         </ul>
@@ -77,7 +77,12 @@
                 <tbody class="text-gray-800">
                     @foreach ($hitting as $stat)
                         <tr class="border-t hover:bg-gray-50">
-                            <td class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">{{ $stat->player->name }}</td>
+                            <td class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">
+                                <span class="font-medium">{{ $stat->player->name }}</span>
+                                @if ($stat->position)
+                                    <span class="text-gray-500 ml-1">{{ $stat->position }}</span>
+                                @endif
+                            </td>
                             <td class="text-center px-2 md:px-3 py-1 md:py-2 border">{{ $stat->at_bats }}</td>
                             <td class="text-center px-2 md:px-3 py-1 md:py-2 border">{{ $stat->runs }}</td>
                             <td class="text-center px-2 md:px-3 py-1 md:py-2 border">{{ $stat->hits }}</td>
@@ -127,7 +132,12 @@
                 <tbody class="text-gray-800">
                     @foreach ($pitchingWithIP as $stat)
                         <tr class="border-t hover:bg-gray-50">
-                            <td class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">{{ $stat->player->name }}</td>
+                            <td class="px-2 md:px-3 py-1 md:py-2 border whitespace-nowrap">
+                                <span class="font-medium">{{ $stat->player->name }}</span>
+                                @if ($stat->position)
+                                    <span class="text-gray-500 ml-1">{{ $stat->position }}</span>
+                                @endif
+                            </td>
                             <td class="text-center px-2 md:px-3 py-1 md:py-2 border">{{ $stat->innings_pitched }}</td>
                             <td class="text-center px-2 md:px-3 py-1 md:py-2 border">{{ $stat->hits_allowed }}</td>
                             <td class="text-center px-2 md:px-3 py-1 md:py-2 border">{{ ($stat->earned_runs + ($stat->pr ?? 0)) }}</td>

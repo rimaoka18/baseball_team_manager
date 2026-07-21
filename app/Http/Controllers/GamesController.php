@@ -104,6 +104,7 @@ class GamesController extends Controller
             $this->playerGameStat->fill([
                 'game_id' => $game->id,
                 'player_id' => $player->id,
+                'position' => $request->position[$index] ?? null,
 
                 'at_bats' => $request->ab[$index] ?? 0,
                 'runs' => $request->r[$index] ?? 0,
@@ -221,12 +222,27 @@ class GamesController extends Controller
             // upcoming-game form) — seed the edit form from the lineup instead.
             $stats = $game->lineups()->with('player')->orderBy('batting_order')->get()
                 ->map(function ($lineup) {
-                    $stat = new PlayerGameStat(['player_id' => $lineup->player_id]);
+                    $stat = new PlayerGameStat([
+                        'player_id' => $lineup->player_id,
+                        'position' => $lineup->position,
+                    ]);
                     $stat->setRelation('player', $lineup->player);
                     $stat->lineup_id = $lineup->id;
 
                     return $stat;
                 });
+        } else {
+            $lineupsByPlayerId = $game->lineups()->get()->keyBy('player_id');
+
+            $stats->each(function ($stat) use ($lineupsByPlayerId) {
+                $lineup = $lineupsByPlayerId->get($stat->player_id);
+                if ($lineup) {
+                    $stat->lineup_id = $lineup->id;
+                    if (empty($stat->position)) {
+                        $stat->position = $lineup->position;
+                    }
+                }
+            });
         }
 
         return view('games.edit', compact('game', 'stats'));
@@ -262,6 +278,10 @@ class GamesController extends Controller
                 if ($lineup && $lineup->player) {
                     $lineup->player->name = $request->player_names[$index];
                     $lineup->player->save();
+                    $lineup->update([
+                        'batting_order' => $index + 1,
+                        'position' => $request->position[$index] ?? '',
+                    ]);
                 }
 
                 continue;
@@ -274,6 +294,7 @@ class GamesController extends Controller
             }
 
             $stat->fill([
+                'position' => $request->position[$index] ?? null,
                 'at_bats' => $request->ab[$index] ?? 0,
                 'runs' => $request->r[$index] ?? 0,
                 'hits' => $request->h[$index] ?? 0,
@@ -287,6 +308,17 @@ class GamesController extends Controller
                 'pitching_walks' => $request->pbb[$index] ?? null,
                 'pitching_strikeouts' => $request->pk[$index] ?? null,
             ])->save();
+
+            if ($lineupId) {
+                $lineup = Lineup::find($lineupId);
+                if ($lineup) {
+                    $lineup->update([
+                        'batting_order' => $index + 1,
+                        'position' => $request->position[$index] ?? '',
+                        'player_id' => $stat->player_id,
+                    ]);
+                }
+            }
         }
 
         if (is_null($game->team_score) || is_null($game->opponent_score)) {
