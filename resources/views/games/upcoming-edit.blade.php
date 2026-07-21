@@ -39,8 +39,8 @@
 
     <h2 class="text-xl font-semibold mb-2">スターティングラインナップ</h2>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border bg-bf-cream">
+    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+        <table class="min-w-full text-sm bg-bf-cream">
             <thead class="bg-bf-navy text-white">
                 <tr>
                     <th class="px-2 py-1 border w-8"></th>
