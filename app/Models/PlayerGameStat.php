@@ -9,6 +9,7 @@ class PlayerGameStat extends Model
     protected $fillable = [
         'game_id',
         'player_id',
+        'position',
         'at_bats',
         'runs',
         'hits',

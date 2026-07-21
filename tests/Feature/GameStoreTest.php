@@ -94,4 +94,43 @@ class GameStoreTest extends TestCase
 
         $this->assertSame(1, Player::where('name', '今岡')->count());
     }
+
+    public function test_storing_a_game_saves_player_positions(): void
+    {
+        $response = $this->post(route('games.store'), $this->validGamePayload([
+            'player_names' => ['山田', '鈴木'],
+            'position' => ['SS', 'P'],
+            'ab' => [4, 0],
+            'h' => [2, 0],
+            'ip' => [0, 5],
+        ]));
+
+        $response->assertRedirect(route('games.index'));
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('player_game_stats', [
+            'position' => 'SS',
+        ]);
+        $this->assertDatabaseHas('player_game_stats', [
+            'position' => 'P',
+        ]);
+    }
+
+    public function test_show_page_displays_position_next_to_player_name(): void
+    {
+        $this->post(route('games.store'), $this->validGamePayload([
+            'player_names' => ['山田'],
+            'position' => ['CF'],
+            'ab' => [4],
+            'h' => [2],
+        ]));
+
+        $game = \App\Models\Game::firstOrFail();
+        $response = $this->get(route('games.show', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('山田', false);
+        $response->assertSee('CF', false);
+        $response->assertDontSee('>守備位置<', false);
+    }
 }

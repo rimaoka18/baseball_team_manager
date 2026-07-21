@@ -59,15 +59,11 @@
 				@if ($game->lineups->isEmpty())
 					<p class="text-gray-500">スターティングラインナップは未登録です</p>
 				@else
-					<div class="flex items-center justify-between px-1 pb-2 text-sm text-gray-500 font-semibold uppercase tracking-wide">
-						<div class="flex items-center gap-3">
-							<span class="w-8 text-center">打順</span>
-							<span>選手名</span>
-						</div>
-						<div class="flex items-center gap-2">
-							<span>守備位置</span>
-							<span>成績</span>
-						</div>
+					<div class="grid grid-cols-[2rem_minmax(0,1fr)_3.25rem_5.5rem] items-center gap-x-2 px-1 pb-2 text-sm text-gray-500 font-semibold tracking-wide">
+						<span class="text-center">打順</span>
+						<span>選手名</span>
+						<span class="text-center">守備</span>
+						<span class="text-right">成績</span>
 					</div>
 
 					<ul id="upcoming-lineup-preview-{{ $index }}" class="divide-y divide-gray-100">
@@ -88,26 +84,25 @@
 									default => 'bg-gray-100 text-gray-600',
 								};
 							@endphp
-							<li class="flex items-center justify-between py-2.5 px-1 odd:bg-gray-50/50">
-								<div class="flex items-center gap-3">
-									<span class="w-8 h-8 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
-										{{ $lineup->batting_order }}
-									</span>
-									<span class="text-gray-800 font-medium">{{ $lineup->player->name }}</span>
-								</div>
-								<div class="flex items-center gap-2 justify-end">
+							<li class="grid grid-cols-[2rem_minmax(0,1fr)_3.25rem_5.5rem] items-center gap-x-2 py-2.5 px-1 odd:bg-gray-50/50">
+								<span class="w-8 h-8 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
+									{{ $lineup->batting_order }}
+								</span>
+								<span class="text-gray-800 font-medium truncate">{{ $lineup->player->name }}</span>
+								<div class="flex justify-center">
 									@if ($lineup->position)
-										<span class="{{ $pillClass }} text-xs font-medium rounded-full px-3 py-1">
+										<span class="{{ $pillClass }} text-xs font-medium rounded-full w-10 text-center py-1">
 											{{ $lineup->position }}
 										</span>
 									@endif
-
+								</div>
+								<div class="text-right">
 									@if ($statText)
-										<span class="text-gray-500 text-sm">
-											{{ $statLabel }} <span class="font-medium">{{ $statText }}</span>
+										<span class="text-gray-600 text-sm">
+											{{ $statLabel }} <span class="font-medium text-gray-800">{{ $statText }}</span>
 										</span>
 									@else
-										<span class="text-xs text-gray-300">{{ $statLabel }} 未記録</span>
+										<span class="text-xs text-gray-500">{{ $statLabel }} 未記録</span>
 									@endif
 								</div>
 							</li>

@@ -30,31 +30,32 @@
 		</span>
 	</div>
 
-	<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 mt-1">
+	<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 mt-2">
 		<div class="flex flex-col items-center">
-			<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="w-9 h-9 rounded-full object-cover border border-gray-200">
-			<span class="text-xs font-bold text-bf-navy leading-tight">Blitz Fang</span>
+			<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200" style="width: 96px; height: 96px;">
+			<span class="text-sm font-bold text-bf-navy leading-tight mt-1">Blitz Fang</span>
 		</div>
 
-		<div class="flex flex-col items-center justify-end text-center px-2 self-end">
+		<div class="flex flex-col items-center justify-center text-center px-2">
 			@if ($result)
-				<div class="text-xl font-bold text-bf-navy leading-tight">
+				<div class="text-2xl font-bold text-bf-navy leading-tight">
 					{{ $game->team_score }} - {{ $game->opponent_score }}
 				</div>
 			@else
-				<div class="text-sm font-semibold text-gray-300 leading-tight">vs</div>
+				<div class="text-base font-semibold text-gray-400 leading-tight">vs</div>
+			@endif
+			@if ($game->location)
+				<div class="text-xs text-gray-500 mt-1">{{ $game->location }}</div>
 			@endif
 		</div>
 
 		<div class="flex flex-col items-center">
-			<div class="w-9 h-9 rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center">
-				<span class="text-sm font-semibold text-gray-500">{{ $opponentInitial }}</span>
+			<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center" style="width: 96px; height: 96px;">
+				<span class="text-3xl font-semibold text-gray-500">{{ $opponentInitial }}</span>
 			</div>
-			<span class="text-xs font-bold text-bf-navy leading-tight">{{ $game->opponent ?? '未入力' }}</span>
+			<span class="text-sm font-bold text-bf-navy leading-tight mt-1">{{ $game->opponent ?? '未入力' }}</span>
 		</div>
 	</div>
-
-	<div class="text-center text-xs text-gray-400 mt-0.5">{{ $game->location }}</div>
 
 	<div class="flex items-center justify-end gap-2 mt-1.5">
 		@unless ($hasScore)
