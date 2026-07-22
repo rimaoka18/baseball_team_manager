@@ -27,6 +27,7 @@ class UpdateUpcomingGameRequest extends FormRequest
     {
         return [
             'game_date' => 'required|date',
+            'game_time' => 'nullable|date_format:H:i',
             'location' => 'required|string|max:255',
             'opponent' => 'required|string|max:255',
 

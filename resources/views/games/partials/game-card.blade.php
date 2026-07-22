@@ -24,6 +24,14 @@
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-2">
 			<span class="text-gray-500 text-sm">{{ $game->game_date }}</span>
+			@if ($game->game_time_formatted)
+				<span class="inline-flex items-center gap-1 text-gray-500 text-xs bg-gray-100 rounded-full px-2 py-0.5">
+					<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+					</svg>
+					{{ $game->game_time_formatted }}
+				</span>
+			@endif
 		</div>
 		<span class="inline-block {{ $badgeClass }} rounded-full px-2.5 py-0.5 text-xs font-semibold">
 			{{ $badgeLabel }}

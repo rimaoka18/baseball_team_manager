@@ -24,13 +24,27 @@
 		</div>
 	@else
 		@if ($upcomingGames->count() > 1)
-			<div class="flex flex-wrap gap-2 mb-4">
+			@php
+				$monthLabel = \Illuminate\Support\Carbon::parse($upcomingGames->first()->game_date)->translatedFormat('M');
+			@endphp
+			<div class="flex items-stretch justify-center gap-2 mb-5 overflow-x-auto pb-1">
+				<span class="shrink-0 self-center text-xs font-bold text-gray-400 uppercase tracking-wide pr-1">{{ $monthLabel }}</span>
+
 				@foreach ($upcomingGames as $index => $game)
+					@php
+						$date = \Illuminate\Support\Carbon::parse($game->game_date);
+						$isActive = $index === 0;
+					@endphp
 					<button type="button"
 						id="upcoming-tab-{{ $index }}"
 						onclick="showUpcomingGame({{ $index }})"
-						class="upcoming-tab-btn px-3 py-1 rounded-full text-sm font-medium transition {{ $index === 0 ? 'bg-bf-navy text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-						{{ \Illuminate\Support\Carbon::parse($game->game_date)->format('n/j') }}
+						style="width: 4rem; min-width: 4rem; max-width: 4rem; height: 4rem;"
+						class="upcoming-tab-btn shrink-0 flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl border px-1 py-1.5 transition {{ $isActive ? 'bg-bf-navy border-bf-navy text-white shadow-md' : 'bg-white border-gray-200 text-gray-500 shadow-sm hover:border-bf-navy/40 hover:text-bf-navy' }}">
+						<span class="w-full text-center text-[10px] font-semibold leading-none opacity-60">{{ $date->format('n/j') }}</span>
+						<span class="w-full text-center text-xs font-bold leading-tight truncate">{{ $game->opponent ?? '未定' }}</span>
+						<span class="w-full text-center text-[10px] leading-none opacity-60 truncate">
+							{{ $game->game_time_formatted ?? '未定' }}
+						</span>
 					</button>
 				@endforeach
 			</div>
@@ -38,33 +52,63 @@
 
 		@foreach ($upcomingGames as $index => $game)
 			<div id="upcoming-panel-{{ $index }}" class="upcoming-game-panel {{ $index === 0 ? '' : 'hidden' }}">
-				<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-4">
-					<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-						<span class="text-xl font-semibold text-gray-800">{{ \Illuminate\Support\Carbon::parse($game->game_date)->format('Y/m/d') }}</span>
-						<span class="text-gray-700">vs {{ $game->opponent ?? '未定' }}</span>
-						<span class="text-gray-500 text-sm">@ {{ $game->location }}</span>
+				@php
+					$hasScore = !is_null($game->team_score) && !is_null($game->opponent_score);
+					$scoreActionLabel = $hasScore ? '試合結果' : '試合結果を入力';
+					$scoreActionRoute = $hasScore ? route('games.show', $game) : route('games.edit', $game);
+					$opponentInitial = $game->opponent ? mb_substr($game->opponent, 0, 1) : '?';
+				@endphp
+
+				@php
+					$gameDate = \Illuminate\Support\Carbon::parse($game->game_date);
+					$weekdayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+				@endphp
+				<div class="text-center text-xs font-medium text-gray-400 mb-3">
+					{{ $gameDate->format('n/j') }}（{{ $weekdayLabels[$gameDate->dayOfWeek] }}）
+				</div>
+
+				<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+					<div class="flex flex-col items-center">
+						<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200" style="width: 64px; height: 64px;">
+						<span class="text-xs font-bold text-bf-navy leading-tight mt-1">Blitz Fang</span>
 					</div>
-					@php
-						$hasScore = !is_null($game->team_score) && !is_null($game->opponent_score);
-						$scoreActionLabel = $hasScore ? '試合結果' : '試合結果を入力';
-						$scoreActionRoute = $hasScore ? route('games.show', $game) : route('games.edit', $game);
-					@endphp
-					<div class="flex gap-2">
-						@unless ($hasScore)
-							<a href="{{ route('games.upcoming.edit', $game) }}"
-								class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-3 py-1 rounded-lg hover:bg-bf-gold/20">
-								予定・スタメンを編集
-							</a>
-						@endunless
-						<a href="{{ $scoreActionRoute }}"
-							class="bg-bf-navy text-white text-sm px-3 py-1 rounded-lg hover:bg-bf-navy-light">
-							{{ $scoreActionLabel }}
-						</a>
+
+					<div class="flex flex-col items-center justify-center gap-1 px-2">
+						<span class="text-sm font-semibold text-gray-400">vs</span>
+						<span class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap">
+							@if ($game->game_time_formatted)
+								<span>{{ $game->game_time_formatted }}</span>
+								<span class="text-gray-300">・</span>
+							@endif
+							<span>{{ $game->location }}</span>
+						</span>
+					</div>
+
+					<div class="flex flex-col items-center">
+						<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center" style="width: 64px; height: 64px;">
+							<span class="text-xl font-semibold text-gray-500">{{ $opponentInitial }}</span>
+						</div>
+						<span class="text-xs font-bold text-bf-navy leading-tight mt-1">{{ $game->opponent ?? '未定' }}</span>
 					</div>
 				</div>
 
+				<div class="flex items-center justify-center gap-2 mt-4">
+					@unless ($hasScore)
+						<a href="{{ route('games.upcoming.edit', $game) }}"
+							class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-3 py-1 rounded-lg hover:bg-bf-gold/20">
+							予定・スタメンを編集
+						</a>
+					@endunless
+					<a href="{{ $scoreActionRoute }}"
+						class="bg-bf-navy text-white text-sm px-3 py-1 rounded-lg hover:bg-bf-navy-light">
+						{{ $scoreActionLabel }}
+					</a>
+				</div>
+
+				<div class="border-t border-bf-navy/15 my-4"></div>
+
 				@if ($game->lineups->isEmpty())
-					<div class="rounded-xl border border-dashed border-gray-300 bg-white/50 px-4 py-8 text-center">
+					<div class="rounded-xl border border-dashed border-gray-300 bg-black/5 px-4 py-8 text-center">
 						<p class="text-gray-800 font-semibold mb-1">スタメン未登録</p>
 						<p class="text-sm text-gray-500 mb-4">打順と守備位置を登録するとここに表示されます</p>
 						@unless ($hasScore)
@@ -138,12 +182,12 @@
 		document.getElementById('upcoming-panel-' + index).classList.remove('hidden');
 
 		document.querySelectorAll('.upcoming-tab-btn').forEach(btn => {
-			btn.classList.remove('bg-bf-navy', 'text-white');
-			btn.classList.add('bg-gray-100', 'text-gray-700');
+			btn.classList.remove('bg-bf-navy', 'border-bf-navy', 'text-white', 'shadow-sm');
+			btn.classList.add('bg-white', 'border-gray-200', 'text-gray-500');
 		});
 		const activeBtn = document.getElementById('upcoming-tab-' + index);
-		activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
-		activeBtn.classList.add('bg-bf-navy', 'text-white');
+		activeBtn.classList.remove('bg-white', 'border-gray-200', 'text-gray-500');
+		activeBtn.classList.add('bg-bf-navy', 'border-bf-navy', 'text-white', 'shadow-sm');
 	}
 </script>
 
