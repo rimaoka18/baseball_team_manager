@@ -21,6 +21,45 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('スターティングラインナップ');
     }
 
+    public function test_create_form_does_not_show_use_previous_lineup_button_when_no_lineup_exists(): void
+    {
+        $response = $this->get(route('games.upcoming.create'));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('前回のスタメンを使う');
+    }
+
+    public function test_create_form_shows_use_previous_lineup_button_when_a_lineup_exists(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Rival Sharks']);
+        $player = Player::create(['name' => '山田 太郎']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.upcoming.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('Rival Sharks');
+    }
+
+    public function test_create_form_shows_use_previous_lineup_button_for_a_completed_game(): void
+    {
+        $game = Game::create([
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Rival Sharks',
+            'team_score' => 5,
+            'opponent_score' => 2,
+        ]);
+        $player = Player::create(['name' => '山田 太郎']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.upcoming.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+    }
+
     public function test_storing_an_upcoming_game_creates_players_and_lineup_in_batting_order(): void
     {
         $response = $this->post(route('games.upcoming.store'), [
@@ -265,6 +304,55 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('キャンセル');
     }
 
+    public function test_upcoming_edit_page_shows_use_previous_lineup_button_when_a_different_previous_lineup_exists(): void
+    {
+        $previousGame = Game::create(['game_date' => '2026-07-13', 'location' => 'Field A', 'opponent' => 'Old Rivals']);
+        $previousPlayer = Player::create(['name' => '鈴木 一郎']);
+        Lineup::create(['game_id' => $previousGame->id, 'player_id' => $previousPlayer->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+
+        $response = $this->get(route('games.upcoming.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('Old Rivals');
+    }
+
+    public function test_upcoming_edit_page_does_not_offer_a_later_dated_lineup_as_previous(): void
+    {
+        $earlierGame = Game::create(['game_date' => '2026-07-21', 'location' => 'Field A', 'opponent' => 'Old Rivals']);
+        $earlierPlayer = Player::create(['name' => '鈴木 一郎']);
+        Lineup::create(['game_id' => $earlierGame->id, 'player_id' => $earlierPlayer->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $laterGame = Game::create(['game_date' => '2026-07-24', 'location' => 'Field A', 'opponent' => 'Future Foes']);
+        $laterPlayer = Player::create(['name' => '田中 二郎']);
+        Lineup::create(['game_id' => $laterGame->id, 'player_id' => $laterPlayer->id, 'batting_order' => 1, 'position' => 'C']);
+
+        $game = Game::create(['game_date' => '2026-07-22', 'location' => 'Field A', 'opponent' => 'Team A']);
+
+        $response = $this->get(route('games.upcoming.edit', $game));
+
+        $response->assertStatus(200);
+        // Scope to the button's own text — the shared header also shows a
+        // "next upcoming game" line (HeaderComposer) that may legitimately
+        // reference the later-dated game elsewhere on this same page.
+        $response->assertSee('前回のスタメンを使う（7/21 vs Old Rivals）');
+        $response->assertDontSee('前回のスタメンを使う（7/24 vs Future Foes）');
+    }
+
+    public function test_upcoming_edit_page_does_not_offer_the_game_itself_as_previous_lineup(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太郎']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.upcoming.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('前回のスタメンを使う');
+    }
+
     public function test_upcoming_edit_page_shows_empty_rows_when_game_has_no_lineup(): void
     {
         $game = Game::create([
@@ -280,6 +368,53 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('name="player_names[]"', false);
         $response->assertSee('name="position[]"', false);
         $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'placeholder="選手名（例：山田）"'));
+    }
+
+    public function test_upcoming_edit_link_from_games_index_carries_a_from_parameter(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+
+        $response = $this->get(route('games.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee(route('games.upcoming.edit', $game) . '?from=games.index', false);
+    }
+
+    public function test_updating_an_upcoming_game_redirects_to_games_index_when_edited_from_there(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太郎']);
+        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->put(route('games.upcoming.update', $game), [
+            'from' => 'games.index',
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+            'player_names' => ['山田 太郎'],
+            'position' => ['P'],
+            'lineup_ids' => [$lineup->id],
+        ]);
+
+        $response->assertRedirect(route('games.index'));
+    }
+
+    public function test_updating_an_upcoming_game_still_redirects_to_upcoming_index_by_default(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        $player = Player::create(['name' => '山田 太郎']);
+        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->put(route('games.upcoming.update', $game), [
+            'game_date' => '2026-07-20',
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+            'player_names' => ['山田 太郎'],
+            'position' => ['P'],
+            'lineup_ids' => [$lineup->id],
+        ]);
+
+        $response->assertRedirect(route('games.upcoming.index'));
     }
 
     public function test_updating_upcoming_lineup_renames_existing_slot_without_creating_a_duplicate_player(): void
@@ -468,6 +603,45 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('name="position[]"', false);
         $response->assertSee('name="stat_ids[]"', false);
         $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'placeholder="選手名（例：山田）"'));
+    }
+
+    public function test_edit_page_shows_use_previous_lineup_button_when_all_rows_are_blank_placeholders(): void
+    {
+        $previousGame = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Old Rivals']);
+        $previousPlayer = Player::create(['name' => '鈴木 一郎']);
+        Lineup::create(['game_id' => $previousGame->id, 'player_id' => $previousPlayer->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $game = Game::create([
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+        ]);
+
+        $response = $this->get(route('games.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('Old Rivals');
+    }
+
+    public function test_edit_page_does_not_show_use_previous_lineup_button_when_the_game_already_has_a_lineup(): void
+    {
+        $previousGame = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Old Rivals']);
+        $previousPlayer = Player::create(['name' => '鈴木 一郎']);
+        Lineup::create(['game_id' => $previousGame->id, 'player_id' => $previousPlayer->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $game = Game::create([
+            'game_date' => '2026-08-01',
+            'location' => 'Test Field',
+            'opponent' => 'Rival Sharks',
+        ]);
+        $player = Player::create(['name' => '山田 太郎']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.edit', $game));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('前回のスタメンを使う');
     }
 
     public function test_updating_a_game_with_no_lineup_creates_stats_from_empty_rows(): void

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Game;
+use App\Models\Lineup;
 use App\Models\Player;
 use App\Models\PlayerGameStat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,6 +12,27 @@ use Tests\TestCase;
 class GameStoreTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_create_form_does_not_show_use_previous_lineup_button_when_no_lineup_exists(): void
+    {
+        $response = $this->get(route('games.create'));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('前回のスタメンを使う');
+    }
+
+    public function test_create_form_shows_use_previous_lineup_button_when_a_lineup_exists(): void
+    {
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Rival Sharks']);
+        $player = Player::create(['name' => '山田 太郎']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+
+        $response = $this->get(route('games.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('Rival Sharks');
+    }
 
     private function validGamePayload(array $overrides = []): array
     {

@@ -67,7 +67,7 @@
 
 	<div class="flex items-center justify-end gap-2 mt-1.5">
 		@unless ($hasScore)
-			<a href="{{ route('games.upcoming.edit', $game) }}"
+			<a href="{{ route('games.upcoming.edit', $game) }}?from=games.index"
 				class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-4 py-1 rounded-lg hover:bg-bf-gold/20 transition">
 				予定・スタメンを編集
 			</a>
