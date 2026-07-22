@@ -49,7 +49,10 @@
     </div>
 
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 class="text-lg font-semibold text-bf-navy mb-4">選手成績</h2>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-bf-navy">選手成績</h2>
+            @include('games.partials.use-previous-lineup-button', ['previousGame' => $previousGame])
+        </div>
 
         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table class="min-w-full text-sm bg-bf-cream">
@@ -137,6 +140,39 @@
         newRow.querySelectorAll('input').forEach(input => input.value = '');
         newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
         tbody.appendChild(newRow);
+    }
+
+    @php
+        $previousLineupData = $previousGame
+            ? $previousGame->lineups->map(fn ($l) => ['name' => $l->player->name ?? '', 'position' => $l->position])->values()
+            : collect();
+    @endphp
+    const PREVIOUS_LINEUP = @json($previousLineupData);
+    const LINEUP_POSITIONS = @json($positions);
+
+    function applyLineupEntry(row, entry) {
+        const nameInput = row.querySelector('input[name="player_names[]"]');
+        const positionSelect = row.querySelector('select[name="position[]"]');
+        nameInput.value = entry ? entry.name : '';
+        positionSelect.value = (entry && LINEUP_POSITIONS.includes(entry.position)) ? entry.position : '';
+    }
+
+    function usePreviousLineup() {
+        if (!PREVIOUS_LINEUP.length) return;
+
+        const tbody = document.getElementById('player-rows');
+        const hasInput = Array.from(tbody.querySelectorAll('input[name="player_names[]"]'))
+            .some(input => input.value.trim() !== '');
+
+        if (hasInput && !confirm('入力中の内容を前回のスタメンで上書きします。よろしいですか？')) {
+            return;
+        }
+
+        while (tbody.querySelectorAll('tr').length < PREVIOUS_LINEUP.length) {
+            addPlayerRow();
+        }
+
+        tbody.querySelectorAll('tr').forEach((row, index) => applyLineupEntry(row, PREVIOUS_LINEUP[index]));
     }
 </script>
 

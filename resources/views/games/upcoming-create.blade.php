@@ -46,12 +46,7 @@
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-bf-navy">スターティングラインナップ</h2>
-            @if ($previousGame)
-                <button type="button" onclick="usePreviousLineup()"
-                    class="text-sm font-semibold text-bf-navy border border-bf-navy bg-bf-cream px-3 py-1 rounded-full hover:bg-bf-gold/20 transition">
-                    前回のスタメンを使う（{{ \Illuminate\Support\Carbon::parse($previousGame->game_date)->format('n/j') }} vs {{ $previousGame->opponent ?? '未定' }}）
-                </button>
-            @endif
+            @include('games.partials.use-previous-lineup-button', ['previousGame' => $previousGame])
         </div>
 
         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">

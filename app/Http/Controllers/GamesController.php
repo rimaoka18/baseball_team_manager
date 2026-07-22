@@ -86,7 +86,21 @@ class GamesController extends Controller
 
     public function create()
     {
-        return view('games.create');
+        $previousGame = $this->previousLineupGame(null, now()->toDateString());
+
+        return view('games.create', compact('previousGame'));
+    }
+
+    private function previousLineupGame(?int $excludingGameId = null, ?string $beforeDate = null): ?Game
+    {
+        return $this->game
+            ->whereHas('lineups')
+            ->when($excludingGameId, fn ($q) => $q->where('id', '!=', $excludingGameId))
+            ->when($beforeDate, fn ($q) => $q->where('game_date', '<', $beforeDate))
+            ->with(['lineups' => fn ($q) => $q->with('player')->orderBy('batting_order')])
+            ->orderByDesc('game_date')
+            ->orderByDesc('id')
+            ->first();
     }
 
     public function store(StoreGameRequest $request)
@@ -131,11 +145,7 @@ class GamesController extends Controller
 
     public function createUpcoming()
     {
-        $previousGame = $this->game
-            ->whereHas('lineups')
-            ->with(['lineups' => fn ($q) => $q->with('player')->orderBy('batting_order')])
-            ->orderByDesc('id')
-            ->first();
+        $previousGame = $this->previousLineupGame(null, now()->toDateString());
 
         return view('games.upcoming-create', compact('previousGame'));
     }
@@ -170,8 +180,9 @@ class GamesController extends Controller
     public function editUpcoming(Game $game)
     {
         $lineups = $game->lineups()->with('player')->orderBy('batting_order')->get();
+        $previousGame = $this->previousLineupGame($game->id, $game->game_date);
 
-        return view('games.upcoming-edit', compact('game', 'lineups'));
+        return view('games.upcoming-edit', compact('game', 'lineups', 'previousGame'));
     }
 
     public function updateUpcoming(UpdateUpcomingGameRequest $request, Game $game)
@@ -218,12 +229,15 @@ class GamesController extends Controller
         // Any existing lineup rows whose name was cleared out get removed.
         $game->lineups()->whereNotIn('id', $keptLineupIds)->delete();
 
-        return redirect()->route('games.upcoming.index')->with('success', '次の試合の予定を更新しました！');
+        $redirectRoute = $request->input('from') === 'games.index' ? 'games.index' : 'games.upcoming.index';
+
+        return redirect()->route($redirectRoute)->with('success', '次の試合の予定を更新しました！');
     }
 
     public function edit(Game $game)
     {
         $stats = $game->playerGameStats()->with('player')->get();
+        $rowsAreBlankPlaceholders = false;
 
         if ($stats->isEmpty()) {
             $lineups = $game->lineups()->with('player')->orderBy('batting_order')->get();
@@ -243,6 +257,7 @@ class GamesController extends Controller
             } else {
                 // Upcoming game with no lineup yet — show empty rows so the user
                 // can enter names, positions, and box-score stats.
+                $rowsAreBlankPlaceholders = true;
                 $stats = collect(range(1, 9))->map(function () {
                     $stat = new PlayerGameStat();
                     $stat->setRelation('player', new Player(['name' => '']));
@@ -265,7 +280,14 @@ class GamesController extends Controller
             });
         }
 
-        return view('games.edit', compact('game', 'stats'));
+        // Overwriting player_names[] on a row that already has a stat_id/lineup_id
+        // renames the existing linked Player in place (see update()) rather than
+        // reassigning to a different player — safe for fixing a typo, not for
+        // bulk-swapping in a different roster. Only offer the previous-lineup
+        // template when every row is still an unlinked blank placeholder.
+        $previousGame = $rowsAreBlankPlaceholders ? $this->previousLineupGame($game->id, $game->game_date) : null;
+
+        return view('games.edit', compact('game', 'stats', 'previousGame'));
     }
 
     public function update(UpdateGameRequest $request, Game $game)
