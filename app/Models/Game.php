@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    protected $fillable = ['game_date', 'location', 'opponent', 'team_score', 'opponent_score'];
+    protected $fillable = ['game_date', 'game_time', 'location', 'opponent', 'team_score', 'opponent_score'];
+
+    public function getGameTimeFormattedAttribute(): ?string
+    {
+        return $this->game_time ? \Illuminate\Support\Carbon::parse($this->game_time)->format('H:i') : null;
+    }
 
     public function getResultAttribute(): ?string
     {

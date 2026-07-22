@@ -20,10 +20,16 @@
 
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
         <h2 class="text-lg font-semibold text-bf-navy mb-4">試合情報</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-bf-navy">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-bf-navy">
             <div>
                 <label class="block text-sm font-medium">試合日</label>
                 <input type="date" name="game_date" value="{{ old('game_date', $game->game_date) }}" required class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">開始時刻</label>
+                <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}" step="300"
+                    class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-bf-gold/50 focus:border-bf-navy">
             </div>
 
             <div>

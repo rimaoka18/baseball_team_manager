@@ -138,6 +138,7 @@ class GamesController extends Controller
     {
         $game = Game::create([
             'game_date' => $request->game_date,
+            'game_time' => $request->game_time,
             'location' => $request->location,
             'opponent' => $request->opponent,
         ]);
@@ -171,6 +172,7 @@ class GamesController extends Controller
     {
         $game->update([
             'game_date' => $request->game_date,
+            'game_time' => $request->game_time,
             'location' => $request->location,
             'opponent' => $request->opponent,
         ]);
