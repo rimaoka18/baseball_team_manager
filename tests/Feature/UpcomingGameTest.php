@@ -334,9 +334,11 @@ class UpcomingGameTest extends TestCase
         $response = $this->get(route('games.upcoming.edit', $game));
 
         $response->assertStatus(200);
-        $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Old Rivals');
-        $response->assertDontSee('Future Foes');
+        // Scope to the button's own text — the shared header also shows a
+        // "next upcoming game" line (HeaderComposer) that may legitimately
+        // reference the later-dated game elsewhere on this same page.
+        $response->assertSee('前回のスタメンを使う（7/21 vs Old Rivals）');
+        $response->assertDontSee('前回のスタメンを使う（7/24 vs Future Foes）');
     }
 
     public function test_upcoming_edit_page_does_not_offer_the_game_itself_as_previous_lineup(): void
