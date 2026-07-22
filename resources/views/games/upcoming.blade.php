@@ -5,10 +5,10 @@
 <div class="space-y-6">
 
 <div class="flex items-center justify-between">
-	<h2 class="text-lg font-bold text-bf-cream">次の試合</h2>
+	<h2 class="text-lg font-bold text-bf-cream">スケジュール</h2>
 	<a href="{{ route('games.upcoming.create') }}"
 		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full transition">
-		＋ 次の試合を作成
+		＋ 試合を追加
 	</a>
 </div>
 
@@ -16,10 +16,10 @@
 	@if ($upcomingGames->isEmpty())
 		<div class="text-center py-8">
 			<p class="text-gray-600 font-medium mb-1">予定されている試合はありません</p>
-			<p class="text-sm text-gray-500 mb-4">次の試合を作成してスタメンを登録しましょう</p>
+			<p class="text-sm text-gray-500 mb-4">試合を追加してスタメンを登録しましょう</p>
 			<a href="{{ route('games.upcoming.create') }}"
 				class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
-				＋ 次の試合を作成
+				＋ 試合を追加
 			</a>
 		</div>
 	@else
@@ -58,14 +58,6 @@
 					$scoreActionRoute = $hasScore ? route('games.show', $game) : route('games.edit', $game);
 					$opponentInitial = $game->opponent ? mb_substr($game->opponent, 0, 1) : '?';
 				@endphp
-
-				@php
-					$gameDate = \Illuminate\Support\Carbon::parse($game->game_date);
-					$weekdayLabels = ['日', '月', '火', '水', '木', '金', '土'];
-				@endphp
-				<div class="text-center text-xs font-medium text-gray-400 mb-3">
-					{{ $gameDate->format('n/j') }}（{{ $weekdayLabels[$gameDate->dayOfWeek] }}）
-				</div>
 
 				<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
 					<div class="flex flex-col items-center">

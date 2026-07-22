@@ -31,8 +31,8 @@ class StoreUpcomingGameRequest extends FormRequest
             'location' => 'required|string|max:255',
             'opponent' => 'required|string|max:255',
 
-            'player_names' => 'required|array|max:20',
-            'player_names.*' => 'nullable|string|max:255',
+            'player_ids' => 'required|array|max:20',
+            'player_ids.*' => 'nullable|integer|exists:players,id',
 
             'position' => 'required|array|max:20',
             'position.*' => 'nullable|string|max:10',
@@ -42,12 +42,22 @@ class StoreUpcomingGameRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'player_names.max' => '選手は最大20人まで登録できます',
+            'player_ids.max' => '選手は最大20人まで登録できます',
+            'player_ids.*.exists' => '選手一覧に存在しない選手が選択されています',
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
-        $this->validateUniquePlayerNames($validator);
+        $this->validateUniquePlayerIds($validator);
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('game_time') && preg_match('/^\d{1,2}:\d{2}:\d{2}$/', (string) $this->game_time)) {
+            $this->merge([
+                'game_time' => substr((string) $this->game_time, 0, 5),
+            ]);
+        }
     }
 }

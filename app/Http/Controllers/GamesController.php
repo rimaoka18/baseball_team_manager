@@ -56,11 +56,7 @@ class GamesController extends Controller
 
     public function stats()
     {
-        $topBatters = $this->playerStatService->getTopBattingAverages();
-        $topPitchers = $this->playerStatService->getTopERA();
-        $allPlayerStats = $this->playerStatService->getAllPlayerStats();
-
-        return view('games.stats', compact('topBatters', 'topPitchers', 'allPlayerStats'));
+        return redirect()->route('roster.index');
     }
 
     public function show(Game $game)
@@ -146,8 +142,9 @@ class GamesController extends Controller
     public function createUpcoming()
     {
         $previousGame = $this->previousLineupGame(null, now()->toDateString());
+        $players = Player::orderBy('name')->get();
 
-        return view('games.upcoming-create', compact('previousGame'));
+        return view('games.upcoming-create', compact('previousGame', 'players'));
     }
 
     public function storeUpcoming(StoreUpcomingGameRequest $request)
@@ -159,22 +156,20 @@ class GamesController extends Controller
             'opponent' => $request->opponent,
         ]);
 
-        foreach ($request->player_names as $index => $name) {
-            if (empty(trim($name))) {
+        foreach ($request->player_ids as $index => $playerId) {
+            if (empty($playerId)) {
                 continue;
             }
 
-            $player = Player::firstOrCreate(['name' => $name]);
-
             Lineup::create([
                 'game_id' => $game->id,
-                'player_id' => $player->id,
+                'player_id' => $playerId,
                 'batting_order' => $index + 1,
                 'position' => $request->position[$index] ?? '',
             ]);
         }
 
-        return redirect()->route('games.upcoming.index')->with('success', '次の試合の予定を登録しました！');
+        return redirect()->route('games.upcoming.index')->with('success', '試合予定を登録しました！');
     }
 
     public function editUpcoming(Game $game)
@@ -231,7 +226,7 @@ class GamesController extends Controller
 
         $redirectRoute = $request->input('from') === 'games.index' ? 'games.index' : 'games.upcoming.index';
 
-        return redirect()->route($redirectRoute)->with('success', '次の試合の予定を更新しました！');
+        return redirect()->route($redirectRoute)->with('success', '試合予定を更新しました！');
     }
 
     public function edit(Game $game)

@@ -52,4 +52,13 @@ class UpdateUpcomingGameRequest extends FormRequest
     {
         $this->validateUniquePlayerNames($validator);
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('game_time') && preg_match('/^\d{1,2}:\d{2}:\d{2}$/', (string) $this->game_time)) {
+            $this->merge([
+                'game_time' => substr((string) $this->game_time, 0, 5),
+            ]);
+        }
+    }
 }
