@@ -6,7 +6,7 @@
 
 <!-- Header and Add Button -->
 <div class="flex items-center justify-between">
-	<h2 class="text-lg font-bold">試合一覧</h2>
+	<h2 class="text-lg font-bold">試合</h2>
 	<a href="{{ route('games.create') }}">
 		<button class="bg-bf-cream text-bf-navy px-4 py-2 rounded-full hover:bg-bf-gold/20 transition">
 			＋ 試合結果を追加

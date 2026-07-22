@@ -54,13 +54,13 @@
         </div>
     </div>
     @elseif ($query)
-    <p class="text-center text-red-400 font-semibold">「{{ $query }}」の選手が見つかりませんでした。</p>
+    <p class="text-center text-bf-danger font-semibold bg-bf-cream rounded-xl px-4 py-3">「{{ $query }}」の選手が見つかりませんでした。</p>
     @endif
 
     <div class="mt-6">
-        <a href="{{ route('games.stats') }}"
+        <a href="{{ route('roster.index') }}"
             class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
-            ← 成績に戻る
+            ← 選手に戻る
         </a>
     </div>
 

@@ -19,7 +19,7 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
     Route::get('upcoming/{game}/edit', [GamesController::class, 'editUpcoming'])->name('upcoming.edit');   // 次の試合の予定を編集
     Route::put('upcoming/{game}', [GamesController::class, 'updateUpcoming'])->name('upcoming.update');    // 次の試合の予定の更新
 
-    Route::get('stats', [GamesController::class, 'stats'])->name('stats');     // 成績タブ
+    Route::get('stats', fn () => redirect()->route('roster.index'))->name('stats'); // 旧URL互換
 
     Route::get('{game}', [GamesController::class, 'show'])->name('show');      // ボックススコア表示（詳細）
 
@@ -28,6 +28,9 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
 
     Route::delete('{game}', [GamesController::class, 'destroy'])->name('destroy');
 });
+
+Route::get('/roster', [PlayerController::class, 'roster'])->name('roster.index');
+Route::post('/roster/players', [PlayerController::class, 'store'])->name('roster.players.store');
 
 // プレイヤー検索
 Route::get('/players/search', [PlayerController::class, 'search'])->name('players.search');

@@ -29,15 +29,15 @@
             <nav class="flex gap-1 bg-white/10 rounded-xl p-1">
                 <a href="{{ route('games.index') }}"
                     class="px-4 py-1.5 rounded-lg text-sm transition {{ request()->routeIs('games.index', 'games.create', 'games.store', 'games.show', 'games.edit', 'games.update') ? 'bg-bf-cream text-bf-navy font-semibold shadow-sm' : 'text-gray-300 font-medium hover:text-white' }}">
-                    試合一覧
+                    試合
                 </a>
                 <a href="{{ route('games.upcoming.index') }}"
                     class="px-4 py-1.5 rounded-lg text-sm transition {{ request()->routeIs('games.upcoming.*') ? 'bg-bf-cream text-bf-navy font-semibold shadow-sm' : 'text-gray-300 font-medium hover:text-white' }}">
-                    次の試合
+                    スケジュール
                 </a>
-                <a href="{{ route('games.stats') }}"
-                    class="px-4 py-1.5 rounded-lg text-sm transition {{ request()->routeIs('games.stats', 'players.search', 'players.autocomplete') ? 'bg-bf-cream text-bf-navy font-semibold shadow-sm' : 'text-gray-300 font-medium hover:text-white' }}">
-                    成績
+                <a href="{{ route('roster.index') }}"
+                    class="px-4 py-1.5 rounded-lg text-sm transition {{ request()->routeIs('roster.*', 'players.search', 'players.autocomplete') ? 'bg-bf-cream text-bf-navy font-semibold shadow-sm' : 'text-gray-300 font-medium hover:text-white' }}">
+                    選手
                 </a>
             </nav>
         </div>
@@ -46,5 +46,15 @@
     <div class="max-w-4xl mx-auto py-6 px-4">
         @yield('content')
     </div>
+
+    <script>
+        document.querySelectorAll('[data-auto-dismiss]').forEach((el) => {
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.4s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 400);
+            }, 3500);
+        });
+    </script>
 </body>
 </html>

@@ -35,6 +35,7 @@ class PlayerStatService
     public function getAllPlayerStats()
     {
         return Player::with('gameStats')
+            ->orderBy('name')
             ->get()
             ->map(fn($player) => [
                 'player' => $player,
@@ -44,8 +45,6 @@ class PlayerStatService
                 'innings_pitched' => $player->gameStats->sum('innings_pitched'),
                 'era' => $this->getERAForPlayer($player),
             ])
-            // Include players who appeared in a game even with 0 AB / 0 IP.
-            ->filter(fn($row) => $row['player']->gameStats->isNotEmpty())
             ->sortByDesc(fn($row) => $row['avg'] ?? -1)
             ->values();
     }

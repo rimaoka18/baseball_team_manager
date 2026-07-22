@@ -36,6 +36,33 @@ trait ValidatesUniquePlayerNames
         });
     }
 
+    /**
+     * Reject duplicate player_ids in the same lineup submission.
+     */
+    protected function validateUniquePlayerIds(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $seen = [];
+
+            foreach ($this->input('player_ids', []) as $index => $playerId) {
+                if ($playerId === null || $playerId === '') {
+                    continue;
+                }
+
+                $playerId = (int) $playerId;
+
+                if (isset($seen[$playerId])) {
+                    $validator->errors()->add(
+                        "player_ids.$index",
+                        '同じ選手が複数回選択されています'
+                    );
+                }
+
+                $seen[$playerId] = true;
+            }
+        });
+    }
+
     private function normalizePlayerName(?string $name): string
     {
         if ($name === null) {

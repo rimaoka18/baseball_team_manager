@@ -2,17 +2,9 @@
 
 @section('content')
 
-@if ($errors->any())
-<div class="bg-red-100 text-red-800 p-4 rounded mb-4">
-    <ul class="list-disc ml-5">
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+@include('partials.validation-errors')
 
-<h1 class="text-2xl font-bold mb-6">次の試合の予定を編集</h1>
+<h1 class="text-2xl font-bold mb-6">試合予定を編集</h1>
 
 <form action="{{ route('games.upcoming.update', $game) }}" method="POST" class="space-y-6">
     @csrf
@@ -29,7 +21,7 @@
 
             <div>
                 <label class="block text-sm font-medium">開始時刻</label>
-                <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}" step="300"
+                <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}"
                     class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-bf-gold/50 focus:border-bf-navy">
             </div>
 
@@ -47,7 +39,7 @@
 
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-bf-navy">スターティングラインナップ</h2>
+            <h2 class="text-lg font-semibold text-bf-navy">スタメン編集</h2>
             @include('games.partials.use-previous-lineup-button', ['previousGame' => $previousGame])
         </div>
 
@@ -102,7 +94,7 @@
 
         <div class="mt-4">
             <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-navy-light transition">＋選手を追加</button>
-            <p id="lineup-max-message" class="text-sm text-red-600 mt-1 hidden">選手は最大20人まで登録できます</p>
+            <p id="lineup-max-message" class="text-sm text-bf-danger mt-1 hidden">選手は最大20人まで登録できます</p>
         </div>
     </div>
 

@@ -38,7 +38,7 @@
     {{-- Starting Lineup (game not played yet, no box score entered) --}}
     @if ($lineups->isNotEmpty())
     <div>
-        <h3 class="text-base md:text-lg font-semibold mb-2">スターティングラインナップ</h3>
+        <h3 class="text-base md:text-lg font-semibold mb-2">スタメン</h3>
         <ul class="bg-bf-cream border rounded shadow-sm divide-y text-gray-800">
             @foreach ($lineups as $lineup)
                 <li class="flex items-center gap-2 px-3 py-2 text-sm">
