@@ -131,7 +131,13 @@ class GamesController extends Controller
 
     public function createUpcoming()
     {
-        return view('games.upcoming-create');
+        $previousGame = $this->game
+            ->whereHas('lineups')
+            ->with(['lineups' => fn ($q) => $q->with('player')->orderBy('batting_order')])
+            ->orderByDesc('id')
+            ->first();
+
+        return view('games.upcoming-create', compact('previousGame'));
     }
 
     public function storeUpcoming(StoreUpcomingGameRequest $request)
