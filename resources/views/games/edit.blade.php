@@ -15,27 +15,27 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-bf-navy">
             <div class="min-w-0">
                 <label class="block text-sm font-medium">試合日</label>
-                <input type="date" name="game_date" value="{{ $game->game_date }}" required class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+                <input type="date" name="game_date" value="{{ $game->game_date }}" required class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
             </div>
 
             <div class="min-w-0">
                 <label class="block text-sm font-medium">場所</label>
-                <input type="text" name="location" value="{{ $game->location }}" required class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+                <input type="text" name="location" value="{{ $game->location }}" required class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
             </div>
 
             <div class="min-w-0">
                 <label class="block text-sm font-medium">相手チーム名</label>
-                <input type="text" name="opponent" value="{{ $game->opponent }}" required class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+                <input type="text" name="opponent" value="{{ $game->opponent }}" required class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-2 min-w-0">
                 <div class="min-w-0">
                     <label class="block text-sm font-medium">自チーム得点</label>
-                    <input type="number" name="team_score" value="{{ $game->team_score }}" class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+                    <input type="number" name="team_score" value="{{ $game->team_score }}" class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
                 </div>
                 <div class="min-w-0">
                     <label class="block text-sm font-medium">相手得点</label>
-                    <input type="number" name="opponent_score" value="{{ $game->opponent_score }}" class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+                    <input type="number" name="opponent_score" value="{{ $game->opponent_score }}" class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
                 </div>
             </div>
         </div>

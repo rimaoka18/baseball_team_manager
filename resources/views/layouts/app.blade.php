@@ -6,7 +6,7 @@
     <title>Blitz Fang</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-bf-navy text-gray-200">
+<body class="bg-bf-navy text-gray-200 overflow-x-hidden">
     <header class="border-b border-white/10">
         <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col items-center">
             <div class="flex items-center gap-4 mb-3">
