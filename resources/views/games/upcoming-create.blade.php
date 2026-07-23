@@ -11,7 +11,7 @@
 
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
         <h2 class="text-lg font-semibold text-bf-navy mb-4">試合情報</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-bf-navy">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-bf-navy">
             <div class="min-w-0">
                 <label class="block text-sm font-medium">試合日</label>
                 <input type="date" name="game_date" value="{{ old('game_date') }}" required class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
