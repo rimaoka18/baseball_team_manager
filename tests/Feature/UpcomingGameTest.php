@@ -52,7 +52,6 @@ class UpcomingGameTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Rival Sharks');
     }
 
     public function test_create_form_shows_use_previous_lineup_button_for_a_completed_game(): void
@@ -99,7 +98,6 @@ class UpcomingGameTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Box Score Only Team');
     }
 
     public function test_storing_an_upcoming_game_creates_lineup_from_roster_player_ids(): void
@@ -349,7 +347,6 @@ class UpcomingGameTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Old Rivals');
     }
 
     public function test_upcoming_edit_page_does_not_offer_a_later_dated_lineup_as_previous(): void
@@ -367,11 +364,10 @@ class UpcomingGameTest extends TestCase
         $response = $this->get(route('games.upcoming.edit', $game));
 
         $response->assertStatus(200);
-        // Scope to the button's own text — the shared header also shows a
-        // "next upcoming game" line (HeaderComposer) that may legitimately
-        // reference the later-dated game elsewhere on this same page.
-        $response->assertSee('前回のスタメンを使う（7/21 vs Old Rivals）');
-        $response->assertDontSee('前回のスタメンを使う（7/24 vs Future Foes）');
+        // Button label no longer includes date/opponent; earlier lineup is in PREVIOUS_LINEUP.
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('"id":' . $earlierPlayer->id, false);
+        $response->assertDontSee('"id":' . $laterPlayer->id, false);
     }
 
     public function test_upcoming_edit_page_does_not_offer_the_game_itself_as_previous_lineup(): void
@@ -669,7 +665,6 @@ class UpcomingGameTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Old Rivals');
     }
 
     public function test_edit_page_does_not_show_use_previous_lineup_button_when_the_game_already_has_a_lineup(): void

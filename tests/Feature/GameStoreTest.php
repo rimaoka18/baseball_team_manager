@@ -31,7 +31,6 @@ class GameStoreTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Rival Sharks');
     }
 
     private function validGamePayload(array $overrides = []): array
@@ -124,7 +123,6 @@ class GameStoreTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('前回のスタメンを使う');
-        $response->assertSee('Box Score Only Team');
     }
 
     public function test_storing_a_game_saves_player_positions(): void
