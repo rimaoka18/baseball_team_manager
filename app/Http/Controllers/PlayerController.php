@@ -41,6 +41,8 @@ class PlayerController extends Controller
 
     public function show(Player $player)
     {
+        $player->load('gameStats');
+
         return view('players.show', compact('player'));
     }
 

@@ -16,23 +16,12 @@
 	<div data-auto-dismiss class="bg-bf-cream text-bf-navy border border-bf-gold/50 p-3 rounded-xl font-medium">{{ session('success') }}</div>
 @endif
 
-<div class="bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
-	<dl class="space-y-3 text-bf-navy">
-		<div>
-			<dt class="text-sm font-medium text-gray-500">背番号</dt>
-			<dd class="text-lg font-semibold">{{ $player->jersey_number ?? '-' }}</dd>
-		</div>
-		<div>
-			<dt class="text-sm font-medium text-gray-500">選手名</dt>
-			<dd class="text-lg font-semibold">{{ $player->name }}</dd>
-		</div>
-	</dl>
+@include('players.partials.player-stats-card', ['player' => $player])
 
-	<a href="{{ route('roster.players.edit', $player) }}"
-		class="inline-block mt-6 bg-bf-navy text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-bf-navy-light transition">
-		編集する
-	</a>
-</div>
+<a href="{{ route('roster.players.edit', $player) }}"
+	class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-5 py-2 rounded-full transition">
+	編集する
+</a>
 
 </div>
 
