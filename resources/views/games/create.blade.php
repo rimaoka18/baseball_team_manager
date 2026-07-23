@@ -27,7 +27,7 @@
                 <input type="text" name="opponent" value="{{ old('opponent') }}" required class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
             </div>
 
-            <div class="grid grid-cols-2 gap-2 min-w-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-2 min-w-0">
                 <div class="min-w-0">
                     <label class="block text-sm font-medium">自チーム得点</label>
                     <input type="number" name="team_score" value="{{ old('team_score') }}" required class="mt-1 w-full min-w-0 border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
