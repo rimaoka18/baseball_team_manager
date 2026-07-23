@@ -57,25 +57,24 @@
 					$opponentInitial = $game->opponent ? mb_substr($game->opponent, 0, 1) : '?';
 				@endphp
 
-				<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+				<div class="grid grid-cols-[minmax(64px,1fr)_minmax(0,9rem)_minmax(64px,1fr)] items-center gap-3">
 					<div class="flex flex-col items-center">
-						<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200" style="width: 64px; height: 64px;">
+						<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200 shrink-0" style="width: 64px; height: 64px;">
 						<span class="text-xs font-bold text-bf-navy leading-tight mt-1">Blitz Fang</span>
 					</div>
 
-					<div class="flex flex-col items-center justify-center gap-1 px-2">
+					<div class="flex flex-col items-center justify-center gap-1 px-2 min-w-0 text-center">
 						<span class="text-sm font-semibold text-gray-400">vs</span>
-						<span class="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap">
-							@if ($game->game_time_formatted)
-								<span>{{ $game->game_time_formatted }}</span>
-								<span class="text-gray-300">・</span>
-							@endif
-							<span>{{ $game->location }}</span>
-						</span>
+						@if ($game->game_time_formatted)
+							<span class="text-xs text-gray-500">{{ $game->game_time_formatted }}</span>
+						@endif
+						@if ($game->location)
+							<span class="text-xs text-gray-500 break-all">{{ $game->location }}</span>
+						@endif
 					</div>
 
 					<div class="flex flex-col items-center">
-						<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center" style="width: 64px; height: 64px;">
+						<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center shrink-0" style="width: 64px; height: 64px;">
 							<span class="text-xl font-semibold text-gray-500">{{ $opponentInitial }}</span>
 						</div>
 						<span class="text-xs font-bold text-bf-navy leading-tight mt-1">{{ $game->opponent ?? '未定' }}</span>
@@ -109,42 +108,27 @@
 						@endunless
 					</div>
 				@else
-					<div class="grid grid-cols-[2rem_minmax(0,1fr)_3.25rem_5.5rem] items-center gap-x-2 px-1 pb-2 text-sm text-gray-500 font-semibold tracking-wide">
-						<span class="text-center">打順</span>
+					<div class="flex items-center gap-3 px-1 pb-2 text-sm text-gray-500 font-semibold tracking-wide">
+						<span class="w-8 shrink-0 text-center">打順</span>
+						<span class="w-8 shrink-0 text-center">守備</span>
 						<span>選手名</span>
-						<span class="text-center">守備</span>
-						<span class="text-right">成績</span>
 					</div>
 
 					<ul id="upcoming-lineup-preview-{{ $index }}" class="divide-y divide-gray-100">
 						@foreach ($game->lineups as $lineup)
-							@php
-								$isPitcher = $lineup->position === 'P';
-								$statValue = $isPitcher
-									? $playerStatService->getERAForPlayer($lineup->player)
-									: $playerStatService->getBattingAverageForPlayer($lineup->player);
-								$statLabel = $isPitcher ? '防御率' : '打率';
-								$statText = is_null($statValue)
-									? '--'
-									: ($isPitcher ? number_format($statValue, 2) : ltrim(number_format($statValue, 3), '0'));
-							@endphp
-							<li class="grid grid-cols-[2rem_minmax(0,1fr)_3.25rem_5.5rem] items-center gap-x-2 py-2.5 px-1 odd:bg-gray-50/50">
-								<span class="w-8 h-8 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
+							<li class="flex items-center gap-3 py-2.5 px-1 odd:bg-gray-50/50">
+								<span class="w-8 h-8 shrink-0 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
 									{{ $lineup->batting_order }}
 								</span>
+								<span class="w-8 shrink-0 text-bf-navy text-sm font-semibold text-center">
+									{{ $lineup->position }}
+								</span>
 								<span class="text-gray-800 font-medium truncate">{{ $lineup->player->name }}</span>
-								<div class="flex justify-center">
-									@if ($lineup->position)
-										<span class="inline-flex w-8 h-8 items-center justify-center rounded-full border border-bf-navy text-bf-navy text-xs font-semibold">
-											{{ $lineup->position }}
-										</span>
-									@endif
-								</div>
-								<div class="text-right">
-									<span class="text-gray-600 text-sm">
-										{{ $statLabel }} <span class="font-medium text-gray-800">{{ $statText }}</span>
+								@if (!is_null($lineup->player->jersey_number))
+									<span class="shrink-0 text-sm text-gray-500 tabular-nums">
+										#{{ $lineup->player->jersey_number }}
 									</span>
-								</div>
+								@endif
 							</li>
 						@endforeach
 					</ul>

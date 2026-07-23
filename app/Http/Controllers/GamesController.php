@@ -46,12 +46,10 @@ class GamesController extends Controller
         $upcomingGames = $this->game->whereNull('team_score')
             ->whereDate('game_date', '>=', now()->toDateString())
             ->orderBy('game_date')
-            ->with(['lineups' => fn($query) => $query->with('player.gameStats')->orderBy('batting_order')])
+            ->with(['lineups' => fn($query) => $query->with('player')->orderBy('batting_order')])
             ->get();
 
-        $playerStatService = $this->playerStatService;
-
-        return view('games.upcoming', compact('upcomingGames', 'playerStatService'));
+        return view('games.upcoming', compact('upcomingGames'));
     }
 
     public function stats()

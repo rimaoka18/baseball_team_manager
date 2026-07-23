@@ -43,9 +43,12 @@
             @foreach ($lineups as $lineup)
                 <li class="flex items-center gap-2 px-3 py-2 text-sm">
                     <span class="inline-block w-6 text-gray-500">{{ $lineup->batting_order }}</span>
+                    @if (!is_null($lineup->player->jersey_number))
+                        <span class="text-gray-500">#{{ $lineup->player->jersey_number }}</span>
+                    @endif
                     <span class="font-medium">{{ $lineup->player->name }}</span>
                     @if ($lineup->position)
-                        <span class="text-gray-500">{{ $lineup->position }}</span>
+                        <span class="text-bf-navy font-semibold ml-auto">{{ $lineup->position }}</span>
                     @endif
                 </li>
             @endforeach
