@@ -69,7 +69,7 @@
                             <tr>
                                 <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $i + 1 }}</td>
                                 <td class="border px-2 py-1">
-                                    <select name="player_ids[]" class="w-44 px-1 py-1 border rounded bg-white">
+                                    <select name="player_ids[]" class="w-44 px-1 py-1 border rounded">
                                         <option value="">-</option>
                                         @foreach ($players as $player)
                                             <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i) === (string) $player->id)>{{ $player->name }}</option>
@@ -77,7 +77,7 @@
                                     </select>
                                 </td>
                                 <td class="border px-2 py-1">
-                                    <select name="position[]" class="w-24 px-1 py-1 border rounded bg-white">
+                                    <select name="position[]" class="w-24 px-1 py-1 border rounded">
                                         <option value="">-</option>
                                         @foreach ($positions as $position)
                                             <option value="{{ $position }}" @selected(old('position.' . $i) === $position)>{{ $position }}</option>
@@ -132,9 +132,6 @@
     }
 
     @php
-        $previousLineupData = $previousGame
-            ? $previousGame->lineups->map(fn ($l) => ['id' => $l->player_id, 'position' => $l->position])->values()
-            : collect();
         $positions = $positions ?? ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
     @endphp
     const PREVIOUS_LINEUP = @json($previousLineupData);

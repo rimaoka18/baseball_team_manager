@@ -56,6 +56,7 @@
                 <thead class="bg-bf-navy text-white">
                     <tr>
                         <th class="px-2 py-1 border w-8"></th>
+                        <th class="px-2 py-1 border">打順</th>
                         <th class="px-2 py-1 border">選手名</th>
                         <th class="px-2 py-1 border">守備</th>
                         <th class="px-2 py-1 border">AB</th>
@@ -74,7 +75,8 @@
                     </tr>
                 </thead>
                 <tbody id="stat-rows" class="text-gray-800">
-                    @foreach ($stats as $stat)
+                    @foreach ($stats as $index => $stat)
+                        @php $playerName = $stat->player->name ?? ''; @endphp
                         <tr>
                             <td class="border px-2 py-1 text-center drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none">
                                 <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
@@ -83,9 +85,19 @@
                                     <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
                                 </svg>
                             </td>
-                            <td class="border px-2 py-1">
-                                <input type="text" name="player_names[]" value="{{ $stat->player->name ?? '' }}"
-                                       placeholder="選手名（例：山田）" class="w-32 border rounded px-2 py-1">
+                            <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $stat->batting_order ?? ($index + 1) }}</td>
+                            <td class="border px-2 py-1 player-name-cell">
+                                @if ($playerName !== '')
+                                    <span class="player-name-label font-medium whitespace-nowrap">{{ $playerName }}</span>
+                                    <input type="hidden" name="player_names[]" class="player-name-input" value="{{ $playerName }}">
+                                @else
+                                    <select name="player_names[]" class="player-name-input w-36 px-1 py-1 border rounded">
+                                        <option value="">-</option>
+                                        @foreach ($players as $player)
+                                            <option value="{{ $player->name }}">{{ $player->name }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                                 <input type="hidden" name="stat_ids[]" value="{{ $stat->id }}">
                                 <input type="hidden" name="lineup_ids[]" value="{{ $stat->lineup_id }}">
                             </td>
@@ -128,30 +140,76 @@
     </div>
 </form>
 
-@include('games.partials.player-name-autocomplete')
+<template id="empty-stat-row-template">
+    <tr>
+        <td class="border px-2 py-1 text-center drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none">
+            <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
+                <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
+            </svg>
+        </td>
+        <td class="border px-2 py-1 text-center font-semibold batting-order"></td>
+        <td class="border px-2 py-1 player-name-cell">
+            <select name="player_names[]" class="player-name-input w-36 px-1 py-1 border rounded">
+                <option value="">-</option>
+                @foreach ($players as $player)
+                    <option value="{{ $player->name }}">{{ $player->name }}</option>
+                @endforeach
+            </select>
+            <input type="hidden" name="stat_ids[]" value="">
+            <input type="hidden" name="lineup_ids[]" value="">
+        </td>
+        <td class="border px-2 py-1">
+            <select name="position[]" class="w-20 px-1 py-1 border rounded">
+                <option value="">-</option>
+                @foreach ($positions as $position)
+                    <option value="{{ $position }}">{{ $position }}</option>
+                @endforeach
+            </select>
+        </td>
+        <td class="border px-2 py-1"><input type="number" name="ab[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="r[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="h[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="rbi[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="hr[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="bb[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="k[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" step="0.1" name="ip[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="ph[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="pr[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="er[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="pbb[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+        <td class="border px-2 py-1"><input type="number" name="pk[]" value="" class="w-12 px-1 py-1 border rounded text-center"></td>
+    </tr>
+</template>
 
 <script>
-    function addPlayerStatRow() {
-        const tbody = document.getElementById('stat-rows');
-        const row = tbody.querySelector('tr:last-child');
-        const newRow = row.cloneNode(true);
-        newRow.querySelectorAll('input[type="text"], input[type="hidden"], input[type="number"]').forEach(input => input.value = '');
-        newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-        tbody.appendChild(newRow);
+    function renumberStatRows() {
+        document.querySelectorAll('#stat-rows .batting-order').forEach((cell, index) => {
+            cell.textContent = index + 1;
+        });
     }
 
-    @php
-        $previousLineupData = $previousGame
-            ? $previousGame->lineups->map(fn ($l) => ['name' => $l->player->name ?? '', 'position' => $l->position])->values()
-            : collect();
-    @endphp
+    function addPlayerStatRow() {
+        const tbody = document.getElementById('stat-rows');
+        const template = document.getElementById('empty-stat-row-template');
+        tbody.appendChild(template.content.cloneNode(true));
+        renumberStatRows();
+    }
+
     const PREVIOUS_LINEUP = @json($previousLineupData);
     const LINEUP_POSITIONS = @json($positions);
 
     function applyLineupEntry(row, entry) {
-        const nameInput = row.querySelector('input[name="player_names[]"]');
+        const nameInput = row.querySelector('.player-name-input');
         const positionSelect = row.querySelector('select[name="position[]"]');
-        nameInput.value = entry ? entry.name : '';
+        const name = entry ? entry.name : '';
+
+        if (nameInput) {
+            nameInput.value = name;
+        }
+
         positionSelect.value = (entry && LINEUP_POSITIONS.includes(entry.position)) ? entry.position : '';
     }
 
@@ -159,10 +217,10 @@
         if (!PREVIOUS_LINEUP.length) return;
 
         const tbody = document.getElementById('stat-rows');
-        const hasInput = Array.from(tbody.querySelectorAll('input[name="player_names[]"]'))
-            .some(input => input.value.trim() !== '');
+        const hasSelection = Array.from(tbody.querySelectorAll('.player-name-input'))
+            .some(input => (input.value || '').trim() !== '');
 
-        if (hasInput && !confirm('入力中の内容を前回のスタメンで上書きします。よろしいですか？')) {
+        if (hasSelection && !confirm('入力中の内容を前回のスタメンで上書きします。よろしいですか？')) {
             return;
         }
 

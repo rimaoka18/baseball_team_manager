@@ -23,32 +23,30 @@
 			</a>
 		</div>
 	@else
-		@if ($upcomingGames->count() > 1)
-			@php
-				$monthLabel = \Illuminate\Support\Carbon::parse($upcomingGames->first()->game_date)->translatedFormat('M');
-			@endphp
-			<div class="flex items-stretch justify-center gap-2 mb-5 overflow-x-auto pb-1">
-				<span class="shrink-0 self-center text-xs font-bold text-gray-400 uppercase tracking-wide pr-1">{{ $monthLabel }}</span>
+		@php
+			$monthLabel = \Illuminate\Support\Carbon::parse($upcomingGames->first()->game_date)->translatedFormat('M');
+		@endphp
+		<div class="flex items-stretch justify-center gap-2 mb-5 overflow-x-auto pb-1">
+			<span class="shrink-0 self-center text-xs font-bold text-gray-400 uppercase tracking-wide pr-1">{{ $monthLabel }}</span>
 
-				@foreach ($upcomingGames as $index => $game)
-					@php
-						$date = \Illuminate\Support\Carbon::parse($game->game_date);
-						$isActive = $index === 0;
-					@endphp
-					<button type="button"
-						id="upcoming-tab-{{ $index }}"
-						onclick="showUpcomingGame({{ $index }})"
-						style="width: 4rem; min-width: 4rem; max-width: 4rem; height: 4rem;"
-						class="upcoming-tab-btn shrink-0 flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl border px-1 py-1.5 transition {{ $isActive ? 'bg-bf-navy border-bf-navy text-white shadow-md' : 'bg-white border-gray-200 text-gray-500 shadow-sm hover:border-bf-navy/40 hover:text-bf-navy' }}">
-						<span class="w-full text-center text-[10px] font-semibold leading-none opacity-60">{{ $date->format('n/j') }}</span>
-						<span class="w-full text-center text-xs font-bold leading-tight truncate">{{ $game->opponent ?? '未定' }}</span>
-						<span class="w-full text-center text-[10px] leading-none opacity-60 truncate">
-							{{ $game->game_time_formatted ?? '未定' }}
-						</span>
-					</button>
-				@endforeach
-			</div>
-		@endif
+			@foreach ($upcomingGames as $index => $game)
+				@php
+					$date = \Illuminate\Support\Carbon::parse($game->game_date);
+					$isActive = $index === 0;
+				@endphp
+				<button type="button"
+					id="upcoming-tab-{{ $index }}"
+					onclick="showUpcomingGame({{ $index }})"
+					style="width: 4rem; min-width: 4rem; max-width: 4rem; height: 4rem;"
+					class="upcoming-tab-btn shrink-0 flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl border px-1 py-1.5 transition {{ $isActive ? 'bg-bf-navy border-bf-navy text-white shadow-md' : 'bg-white border-gray-200 text-gray-500 shadow-sm hover:border-bf-navy/40 hover:text-bf-navy' }}">
+					<span class="w-full text-center text-[10px] font-semibold leading-none opacity-60">{{ $date->format('n/j') }}</span>
+					<span class="w-full text-center text-xs font-bold leading-tight truncate">{{ $game->opponent ?? '未定' }}</span>
+					<span class="w-full text-center text-[10px] leading-none opacity-60 truncate">
+						{{ $game->game_time_formatted ?? '未定' }}
+					</span>
+				</button>
+			@endforeach
+		</div>
 
 		@foreach ($upcomingGames as $index => $game)
 			<div id="upcoming-panel-{{ $index }}" class="upcoming-game-panel {{ $index === 0 ? '' : 'hidden' }}">
@@ -127,14 +125,8 @@
 									: $playerStatService->getBattingAverageForPlayer($lineup->player);
 								$statLabel = $isPitcher ? '防御率' : '打率';
 								$statText = is_null($statValue)
-									? null
+									? '--'
 									: ($isPitcher ? number_format($statValue, 2) : ltrim(number_format($statValue, 3), '0'));
-								$pillClass = match ($lineup->position) {
-									'P', 'C' => 'bg-bf-navy/10 text-bf-navy',
-									'1B', '2B', '3B', 'SS' => 'bg-bf-gold/15 text-bf-navy',
-									'LF', 'CF', 'RF' => 'bg-gray-100 text-gray-600',
-									default => 'bg-gray-100 text-gray-600',
-								};
 							@endphp
 							<li class="grid grid-cols-[2rem_minmax(0,1fr)_3.25rem_5.5rem] items-center gap-x-2 py-2.5 px-1 odd:bg-gray-50/50">
 								<span class="w-8 h-8 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
@@ -143,19 +135,15 @@
 								<span class="text-gray-800 font-medium truncate">{{ $lineup->player->name }}</span>
 								<div class="flex justify-center">
 									@if ($lineup->position)
-										<span class="{{ $pillClass }} text-xs font-medium rounded-full w-10 text-center py-1">
+										<span class="inline-flex w-8 h-8 items-center justify-center rounded-full border border-bf-navy text-bf-navy text-xs font-semibold">
 											{{ $lineup->position }}
 										</span>
 									@endif
 								</div>
 								<div class="text-right">
-									@if ($statText)
-										<span class="text-gray-600 text-sm">
-											{{ $statLabel }} <span class="font-medium text-gray-800">{{ $statText }}</span>
-										</span>
-									@else
-										<span class="text-xs text-gray-500">{{ $statLabel }} 未記録</span>
-									@endif
+									<span class="text-gray-600 text-sm">
+										{{ $statLabel }} <span class="font-medium text-gray-800">{{ $statText }}</span>
+									</span>
 								</div>
 							</li>
 						@endforeach

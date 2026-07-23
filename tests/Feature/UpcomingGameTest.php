@@ -73,6 +73,35 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('前回のスタメンを使う');
     }
 
+    public function test_create_form_shows_use_previous_lineup_button_for_a_box_score_only_game(): void
+    {
+        // Entered directly via the completed box-score flow (games.store) —
+        // this game never went through the upcoming/lineup flow, so it has
+        // PlayerGameStat rows but no Lineup rows at all.
+        $game = Game::create([
+            'game_date' => '2026-06-26',
+            'location' => 'Field A',
+            'opponent' => 'Box Score Only Team',
+            'team_score' => 5,
+            'opponent_score' => 2,
+        ]);
+        $player = Player::create(['name' => '山田 太郎']);
+        PlayerGameStat::create([
+            'game_id' => $game->id,
+            'player_id' => $player->id,
+            'position' => 'P',
+            'batting_order' => 1,
+        ]);
+
+        $this->assertSame(0, Lineup::where('game_id', $game->id)->count());
+
+        $response = $this->get(route('games.upcoming.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('Box Score Only Team');
+    }
+
     public function test_storing_an_upcoming_game_creates_lineup_from_roster_player_ids(): void
     {
         $yamada = Player::create(['name' => '山田 太郎']);
@@ -265,14 +294,19 @@ class UpcomingGameTest extends TestCase
         $response->assertDontSee('この試合を削除');
     }
 
-    public function test_upcoming_index_does_not_show_tabs_for_a_single_upcoming_game(): void
+    public function test_upcoming_index_shows_a_date_tab_for_a_single_upcoming_game(): void
     {
-        Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        Game::create([
+            'game_date' => now()->addDays(1)->toDateString(),
+            'location' => 'Field A',
+            'opponent' => 'Team A',
+        ]);
 
         $response = $this->get(route('games.upcoming.index'));
 
         $response->assertStatus(200);
-        $response->assertDontSee('id="upcoming-tab-0"', false);
+        $response->assertSee('id="upcoming-tab-0"', false);
+        $response->assertSee('Team A');
     }
 
     public function test_cancelling_an_upcoming_game_deletes_it_and_its_lineup(): void
@@ -354,6 +388,8 @@ class UpcomingGameTest extends TestCase
 
     public function test_upcoming_edit_page_shows_empty_rows_when_game_has_no_lineup(): void
     {
+        Player::create(['name' => '山田 太郎']);
+
         $game = Game::create([
             'game_date' => '2026-08-01',
             'location' => 'Test Field',
@@ -364,9 +400,9 @@ class UpcomingGameTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('スタメン編集');
-        $response->assertSee('name="player_names[]"', false);
+        $response->assertSee('name="player_ids[]"', false);
         $response->assertSee('name="position[]"', false);
-        $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'placeholder="選手名（例：山田）"'));
+        $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'name="player_ids[]"'));
     }
 
     public function test_upcoming_edit_link_from_games_index_carries_a_from_parameter(): void
@@ -390,7 +426,7 @@ class UpcomingGameTest extends TestCase
             'game_date' => '2026-07-20',
             'location' => 'Field A',
             'opponent' => 'Team A',
-            'player_names' => ['山田 太郎'],
+            'player_ids' => [$player->id],
             'position' => ['P'],
             'lineup_ids' => [$lineup->id],
         ]);
@@ -408,7 +444,7 @@ class UpcomingGameTest extends TestCase
             'game_date' => '2026-07-20',
             'location' => 'Field A',
             'opponent' => 'Team A',
-            'player_names' => ['山田 太郎'],
+            'player_ids' => [$player->id],
             'position' => ['P'],
             'lineup_ids' => [$lineup->id],
         ]);
@@ -416,17 +452,18 @@ class UpcomingGameTest extends TestCase
         $response->assertRedirect(route('games.upcoming.index'));
     }
 
-    public function test_updating_upcoming_lineup_renames_existing_slot_without_creating_a_duplicate_player(): void
+    public function test_updating_upcoming_lineup_reassigns_an_existing_slot_to_a_different_roster_player(): void
     {
         $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
-        $player = Player::create(['name' => '山田 太朗']);
-        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
+        $original = Player::create(['name' => '山田 太朗']);
+        $replacement = Player::create(['name' => '山田 太郎']);
+        $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $original->id, 'batting_order' => 1, 'position' => 'P']);
 
         $response = $this->put(route('games.upcoming.update', $game), [
             'game_date' => '2026-07-20',
             'location' => 'Field A',
             'opponent' => 'Team A',
-            'player_names' => ['山田 太郎'],
+            'player_ids' => [$replacement->id],
             'position' => ['C'],
             'lineup_ids' => [$lineup->id],
         ]);
@@ -435,7 +472,7 @@ class UpcomingGameTest extends TestCase
 
         $lineup->refresh();
         $this->assertSame('C', $lineup->position);
-        $this->assertSame('山田 太郎', $lineup->player->name);
+        $this->assertSame($replacement->id, $lineup->player_id);
         $this->assertSame(1, Lineup::where('game_id', $game->id)->count());
     }
 
@@ -443,13 +480,14 @@ class UpcomingGameTest extends TestCase
     {
         $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
         $player = Player::create(['name' => '山田 太郎']);
+        $suzuki = Player::create(['name' => '鈴木 一郎']);
         $lineup = Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => 'P']);
 
         $response = $this->put(route('games.upcoming.update', $game), [
             'game_date' => '2026-07-20',
             'location' => 'Field A',
             'opponent' => 'Team A',
-            'player_names' => ['', '鈴木 一郎'],
+            'player_ids' => ['', $suzuki->id],
             'position' => ['', 'C'],
             'lineup_ids' => [$lineup->id, ''],
         ]);
@@ -459,6 +497,7 @@ class UpcomingGameTest extends TestCase
         $this->assertDatabaseMissing('lineups', ['id' => $lineup->id]);
         $this->assertDatabaseHas('lineups', [
             'game_id' => $game->id,
+            'player_id' => $suzuki->id,
             'batting_order' => 2,
             'position' => 'C',
         ]);
@@ -519,7 +558,7 @@ class UpcomingGameTest extends TestCase
         $this->assertDatabaseMissing('games', ['id' => $game->id]);
     }
 
-    public function test_updating_an_upcoming_game_without_a_score_only_fixes_the_player_name(): void
+    public function test_updating_an_upcoming_game_without_a_score_keeps_the_player_name_unchanged(): void
     {
         $game = Game::create([
             'game_date' => '2026-08-01',
@@ -540,6 +579,7 @@ class UpcomingGameTest extends TestCase
             'location' => 'Test Field',
             'opponent' => 'Rival Sharks',
             'player_names' => ['山田 太郎'],
+            'position' => ['C'],
             'stat_ids' => [''],
             'lineup_ids' => [$lineup->id],
         ]);
@@ -551,10 +591,13 @@ class UpcomingGameTest extends TestCase
         $this->assertNull($game->team_score);
         $this->assertNull($game->opponent_score);
 
-        // The lineup's existing player row is renamed in place, not swapped for a new one.
+        // Names are read-only on game edit — the existing player is not renamed.
         $player->refresh();
-        $this->assertSame('山田 太郎', $player->name);
+        $this->assertSame('山田 太朗', $player->name);
         $this->assertSame(1, Player::count());
+
+        $lineup->refresh();
+        $this->assertSame('C', $lineup->position);
 
         // Still upcoming, so no box score row should have been created yet.
         $this->assertSame(0, PlayerGameStat::where('game_id', $game->id)->count());
@@ -582,12 +625,17 @@ class UpcomingGameTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('山田 太郎');
+        $response->assertSee('打順');
+        $response->assertSee('player-name-label', false);
+        $response->assertDontSee('type="text" name="player_names[]"', false);
         $response->assertSee('name="stat_ids[]" value=""', false);
         $response->assertSee('name="lineup_ids[]" value="' . $lineup->id . '"', false);
     }
 
     public function test_edit_page_shows_empty_stat_rows_when_upcoming_game_has_no_lineup(): void
     {
+        Player::create(['name' => '山田']);
+
         $game = Game::create([
             'game_date' => '2026-08-01',
             'location' => 'Test Field',
@@ -601,7 +649,8 @@ class UpcomingGameTest extends TestCase
         $response->assertSee('name="player_names[]"', false);
         $response->assertSee('name="position[]"', false);
         $response->assertSee('name="stat_ids[]"', false);
-        $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), 'placeholder="選手名（例：山田）"'));
+        $response->assertDontSee('type="text" name="player_names[]"', false);
+        $this->assertGreaterThanOrEqual(9, substr_count($response->getContent(), '<select name="player_names[]"'));
     }
 
     public function test_edit_page_shows_use_previous_lineup_button_when_all_rows_are_blank_placeholders(): void

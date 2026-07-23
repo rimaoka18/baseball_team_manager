@@ -10,6 +10,7 @@ class PlayerGameStat extends Model
         'game_id',
         'player_id',
         'position',
+        'batting_order',
         'at_bats',
         'runs',
         'hits',

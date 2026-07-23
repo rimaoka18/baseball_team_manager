@@ -23,6 +23,9 @@
             draggedRow = null;
             draggedHandle = null;
             pointerId = null;
+            tbody.querySelectorAll('.batting-order').forEach((cell, index) => {
+                cell.textContent = index + 1;
+            });
         }
 
         tbody.addEventListener('pointerdown', (e) => {

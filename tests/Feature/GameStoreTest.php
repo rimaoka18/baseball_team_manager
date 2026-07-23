@@ -36,92 +36,104 @@ class GameStoreTest extends TestCase
 
     private function validGamePayload(array $overrides = []): array
     {
+        $player = Player::firstOrCreate(['name' => '山田 太郎']);
+
         return array_merge([
             'game_date' => '2026-08-01',
             'location' => 'Test Field',
             'opponent' => 'Rival Sharks',
             'team_score' => 5,
             'opponent_score' => 2,
-            'player_names' => ['山田 太郎'],
+            'player_ids' => [$player->id],
             'ab' => [4],
             'h' => [2],
         ], $overrides);
     }
 
-    public function test_storing_games_with_a_repeated_player_name_reuses_the_same_player(): void
+    public function test_storing_games_reuses_the_same_roster_player(): void
     {
-        $this->post(route('games.store'), $this->validGamePayload());
-        $this->post(route('games.store'), $this->validGamePayload(['opponent' => 'Other Team']));
+        $player = Player::create(['name' => '鈴木 一郎']);
 
-        $this->assertSame(1, Player::where('name', '山田 太郎')->count());
+        $this->post(route('games.store'), $this->validGamePayload(['player_ids' => [$player->id]]));
+        $this->post(route('games.store'), $this->validGamePayload([
+            'opponent' => 'Other Team',
+            'player_ids' => [$player->id],
+        ]));
 
-        $player = Player::where('name', '山田 太郎')->firstOrFail();
+        $this->assertSame(1, Player::where('name', '鈴木 一郎')->count());
         $this->assertSame(2, PlayerGameStat::where('player_id', $player->id)->count());
     }
 
-    public function test_storing_a_game_accepts_a_fullwidth_space_between_surname_and_given_name(): void
+    public function test_storing_a_game_rejects_duplicate_player_ids_in_the_same_submission(): void
     {
+        $player = Player::create(['name' => '今岡']);
+
         $response = $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['今岡　稓'],
-        ]));
-
-        $response->assertRedirect(route('games.index'));
-        $response->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('players', ['name' => '今岡　稓']);
-    }
-
-    public function test_storing_a_game_accepts_a_single_name(): void
-    {
-        $response = $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['山田'],
-        ]));
-
-        $response->assertRedirect(route('games.index'));
-        $response->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('players', ['name' => '山田']);
-    }
-
-    public function test_storing_a_game_rejects_duplicate_player_names_in_the_same_submission(): void
-    {
-        $response = $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['今岡', '今岡'],
+            'player_ids' => [$player->id, $player->id],
             'ab' => [4, 3],
             'h' => [2, 1],
         ]));
 
-        $response->assertSessionHasErrors('player_names.1');
-        $this->assertSame(0, Player::where('name', '今岡')->count());
+        $response->assertSessionHasErrors('player_ids.1');
+        $this->assertSame(0, PlayerGameStat::where('player_id', $player->id)->count());
     }
 
-    public function test_storing_a_game_rejects_duplicate_player_names_that_differ_only_by_whitespace(): void
+    public function test_storing_a_game_rejects_unknown_player_ids(): void
     {
         $response = $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['今岡', '今岡　'],
-            'ab' => [4, 3],
-            'h' => [2, 1],
+            'player_ids' => [999],
         ]));
 
-        $response->assertSessionHasErrors('player_names.1');
-        $this->assertSame(0, Player::where('name', '今岡')->count());
+        $response->assertSessionHasErrors('player_ids.0');
+        $this->assertDatabaseMissing('games', ['opponent' => 'Rival Sharks']);
     }
 
-    public function test_storing_games_with_an_existing_single_name_reuses_the_same_player(): void
+    public function test_storing_a_game_saves_batting_order_matching_submission_order(): void
     {
-        $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['今岡'],
-        ]));
-        $this->post(route('games.store'), $this->validGamePayload([
-            'opponent' => 'Other Team',
-            'player_names' => ['今岡'],
+        $yamada = Player::create(['name' => '山田']);
+        $suzuki = Player::create(['name' => '鈴木']);
+        $sato = Player::create(['name' => '佐藤']);
+
+        $response = $this->post(route('games.store'), $this->validGamePayload([
+            'player_ids' => [$yamada->id, $suzuki->id, $sato->id],
+            'ab' => [4, 3, 2],
+            'h' => [2, 1, 0],
         ]));
 
-        $this->assertSame(1, Player::where('name', '今岡')->count());
+        $response->assertRedirect(route('games.index'));
+        $response->assertSessionHasNoErrors();
+
+        $this->assertSame(1, PlayerGameStat::where('player_id', $yamada->id)->value('batting_order'));
+        $this->assertSame(2, PlayerGameStat::where('player_id', $suzuki->id)->value('batting_order'));
+        $this->assertSame(3, PlayerGameStat::where('player_id', $sato->id)->value('batting_order'));
+    }
+
+    public function test_create_form_shows_use_previous_lineup_button_when_only_a_completed_box_score_exists(): void
+    {
+        // Entered directly via the completed-game flow — no Lineup rows at all,
+        // only PlayerGameStat rows with a batting_order.
+        $player = Player::create(['name' => '山田 太郎']);
+
+        $this->post(route('games.store'), $this->validGamePayload([
+            'game_date' => '2026-06-26',
+            'opponent' => 'Box Score Only Team',
+            'player_ids' => [$player->id],
+        ]));
+
+        $response = $this->get(route('games.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('前回のスタメンを使う');
+        $response->assertSee('Box Score Only Team');
     }
 
     public function test_storing_a_game_saves_player_positions(): void
     {
+        $yamada = Player::create(['name' => '山田']);
+        $suzuki = Player::create(['name' => '鈴木']);
+
         $response = $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['山田', '鈴木'],
+            'player_ids' => [$yamada->id, $suzuki->id],
             'position' => ['SS', 'P'],
             'ab' => [4, 0],
             'h' => [2, 0],
@@ -141,14 +153,16 @@ class GameStoreTest extends TestCase
 
     public function test_show_page_displays_position_next_to_player_name(): void
     {
+        $player = Player::create(['name' => '山田']);
+
         $this->post(route('games.store'), $this->validGamePayload([
-            'player_names' => ['山田'],
+            'player_ids' => [$player->id],
             'position' => ['CF'],
             'ab' => [4],
             'h' => [2],
         ]));
 
-        $game = \App\Models\Game::firstOrFail();
+        $game = Game::firstOrFail();
         $response = $this->get(route('games.show', $game));
 
         $response->assertStatus(200);
