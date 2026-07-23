@@ -40,17 +40,32 @@
         </div>
     </div>
 
+    @php
+        $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+    @endphp
+
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-bf-navy">選手成績</h2>
             @include('games.partials.use-previous-lineup-button', ['previousGame' => $previousGame])
         </div>
 
+        @if ($players->isEmpty())
+            <div class="rounded-xl border border-dashed border-gray-300 bg-white/50 px-4 py-8 text-center">
+                <p class="text-gray-800 font-semibold mb-1">選手がいません</p>
+                <p class="text-sm text-gray-500 mb-4">先に選手を追加してから、成績を入力してください</p>
+                <a href="{{ route('roster.index') }}"
+                    class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-navy-light transition">
+                    選手を開く
+                </a>
+            </div>
+        @else
         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table class="min-w-full text-sm bg-bf-cream">
                 <thead class="bg-bf-navy text-white">
                     <tr>
                         <th class="px-2 py-1 border w-8"></th>
+                        <th class="px-2 py-1 border">打順</th>
                         <th class="px-2 py-1 border">選手名</th>
                         <th class="px-2 py-1 border">守備</th>
                         <th class="px-2 py-1 border">AB</th>
@@ -71,7 +86,6 @@
                 <tbody id="player-rows" class="text-gray-800">
                     @php
                     $statInputs = ['ab', 'r', 'h', 'rbi', 'hr', 'bb', 'k', 'ip', 'ph', 'pr', 'er', 'pbb', 'pk'];
-                    $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
                     @endphp
 
                     @for ($i = 0; $i < 9; $i++)
@@ -83,8 +97,14 @@
                                 <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
                             </svg>
                         </td>
+                        <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $i + 1 }}</td>
                         <td class="border px-2 py-1">
-                            <input type="text" name="player_names[]" value="{{ old('player_names.' . $i) }}" placeholder="選手名（例：山田）" required class="w-32 px-1 py-1 border rounded">
+                            <select name="player_ids[]" class="w-36 px-1 py-1 border rounded">
+                                <option value="">-</option>
+                                @foreach ($players as $player)
+                                    <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i) === (string) $player->id)>{{ $player->name }}</option>
+                                @endforeach
+                            </select>
                         </td>
                         <td class="border px-2 py-1">
                             <select name="position[]" class="w-20 px-1 py-1 border rounded">
@@ -115,15 +135,17 @@
         <div class="mt-4">
             <button type="button" onclick="addPlayerRow()" class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-navy-light transition">＋選手を追加</button>
         </div>
+        @endif
     </div>
 
     <div>
-        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition">
+        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition" @disabled($players->isEmpty())>
             保存する
         </button>
     </div>
 </form>
 
+@if ($players->isNotEmpty())
 <script>
     function addPlayerRow() {
         const tbody = document.getElementById('player-rows');
@@ -132,20 +154,18 @@
         newRow.querySelectorAll('input').forEach(input => input.value = '');
         newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
         tbody.appendChild(newRow);
+        tbody.querySelectorAll('.batting-order').forEach((cell, index) => {
+            cell.textContent = index + 1;
+        });
     }
 
-    @php
-        $previousLineupData = $previousGame
-            ? $previousGame->lineups->map(fn ($l) => ['name' => $l->player->name ?? '', 'position' => $l->position])->values()
-            : collect();
-    @endphp
     const PREVIOUS_LINEUP = @json($previousLineupData);
     const LINEUP_POSITIONS = @json($positions);
 
     function applyLineupEntry(row, entry) {
-        const nameInput = row.querySelector('input[name="player_names[]"]');
+        const playerSelect = row.querySelector('select[name="player_ids[]"]');
         const positionSelect = row.querySelector('select[name="position[]"]');
-        nameInput.value = entry ? entry.name : '';
+        playerSelect.value = entry ? String(entry.id) : '';
         positionSelect.value = (entry && LINEUP_POSITIONS.includes(entry.position)) ? entry.position : '';
     }
 
@@ -153,10 +173,10 @@
         if (!PREVIOUS_LINEUP.length) return;
 
         const tbody = document.getElementById('player-rows');
-        const hasInput = Array.from(tbody.querySelectorAll('input[name="player_names[]"]'))
-            .some(input => input.value.trim() !== '');
+        const hasSelection = Array.from(tbody.querySelectorAll('select[name="player_ids[]"]'))
+            .some(select => select.value !== '');
 
-        if (hasInput && !confirm('入力中の内容を前回のスタメンで上書きします。よろしいですか？')) {
+        if (hasSelection && !confirm('入力中の内容を前回のスタメンで上書きします。よろしいですか？')) {
             return;
         }
 
@@ -169,6 +189,6 @@
 </script>
 
 @include('games.partials.row-drag-script', ['tbodyId' => 'player-rows'])
-@include('games.partials.player-name-autocomplete')
+@endif
 
 @endsection

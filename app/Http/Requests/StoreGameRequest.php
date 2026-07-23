@@ -32,8 +32,8 @@ class StoreGameRequest extends FormRequest
             'team_score' => 'required|integer|min:0',
             'opponent_score' => 'required|integer|min:0',
 
-            'player_names' => 'required|array',
-            'player_names.*' => 'required|string|max:255',
+            'player_ids' => 'required|array',
+            'player_ids.*' => 'nullable|integer|exists:players,id',
             'position' => 'nullable|array',
             'position.*' => 'nullable|string|max:10',
 
@@ -54,8 +54,15 @@ class StoreGameRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'player_ids.*.exists' => '選手一覧に存在しない選手が選択されています',
+        ];
+    }
+
     public function withValidator(Validator $validator): void
     {
-        $this->validateUniquePlayerNames($validator);
+        $this->validateUniquePlayerIds($validator);
     }
 }

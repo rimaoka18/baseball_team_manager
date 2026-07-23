@@ -63,6 +63,7 @@ class GamesController extends Controller
     {
         $stats = $this->playerGameStat
             ->where('game_id', $game->id)
+            ->orderBy('batting_order')
             ->get()
             ->map(function ($stat) {
                 $stat->player = Player::find($stat->player_id); // 🔁 Force reload player
@@ -83,20 +84,46 @@ class GamesController extends Controller
     public function create()
     {
         $previousGame = $this->previousLineupGame(null, now()->toDateString());
+        $previousLineupData = $this->previousLineupEntries($previousGame);
+        $players = Player::orderBy('name')->get();
 
-        return view('games.create', compact('previousGame'));
+        return view('games.create', compact('previousGame', 'previousLineupData', 'players'));
     }
 
     private function previousLineupGame(?int $excludingGameId = null, ?string $beforeDate = null): ?Game
     {
         return $this->game
-            ->whereHas('lineups')
+            ->where(fn ($q) => $q->whereHas('lineups')->orWhereHas('playerGameStats'))
             ->when($excludingGameId, fn ($q) => $q->where('id', '!=', $excludingGameId))
             ->when($beforeDate, fn ($q) => $q->where('game_date', '<', $beforeDate))
-            ->with(['lineups' => fn ($q) => $q->with('player')->orderBy('batting_order')])
+            ->with([
+                'lineups' => fn ($q) => $q->with('player')->orderBy('batting_order'),
+                'playerGameStats' => fn ($q) => $q->with('player')->orderBy('batting_order'),
+            ])
             ->orderByDesc('game_date')
             ->orderByDesc('id')
             ->first();
+    }
+
+    /**
+     * Normalize a previous game's roster into the flat {id, name, position}
+     * shape the "use previous lineup" JS expects, sourcing from Lineup rows
+     * when present, falling back to PlayerGameStat rows (completed games
+     * entered directly via the box-score flow never get Lineup rows).
+     */
+    private function previousLineupEntries(?Game $game): \Illuminate\Support\Collection
+    {
+        if (!$game) {
+            return collect();
+        }
+
+        $source = $game->lineups->isNotEmpty() ? $game->lineups : $game->playerGameStats;
+
+        return $source->map(fn ($row) => [
+            'id' => $row->player_id,
+            'name' => $row->player->name ?? '',
+            'position' => $row->position,
+        ])->values();
     }
 
     public function store(StoreGameRequest $request)
@@ -104,17 +131,16 @@ class GamesController extends Controller
         $this->game->fill($request->all())->save();
         $game = $this->game;
 
-        foreach ($request->player_names as $index => $name) {
-            if (empty(trim($name))) {
+        foreach ($request->player_ids as $index => $playerId) {
+            if (empty($playerId)) {
                 continue;
             }
 
-            $player = Player::firstOrCreate(['name' => $name]);
-
             $this->playerGameStat->fill([
                 'game_id' => $game->id,
-                'player_id' => $player->id,
+                'player_id' => $playerId,
                 'position' => $request->position[$index] ?? null,
+                'batting_order' => $index + 1,
 
                 'at_bats' => $request->ab[$index] ?? 0,
                 'runs' => $request->r[$index] ?? 0,
@@ -132,7 +158,6 @@ class GamesController extends Controller
 
             ])->save();
 
-            $this->player = new Player;
             $this->playerGameStat = new PlayerGameStat;
         }
 
@@ -142,9 +167,10 @@ class GamesController extends Controller
     public function createUpcoming()
     {
         $previousGame = $this->previousLineupGame(null, now()->toDateString());
+        $previousLineupData = $this->previousLineupEntries($previousGame);
         $players = Player::orderBy('name')->get();
 
-        return view('games.upcoming-create', compact('previousGame', 'players'));
+        return view('games.upcoming-create', compact('previousGame', 'previousLineupData', 'players'));
     }
 
     public function storeUpcoming(StoreUpcomingGameRequest $request)
@@ -176,8 +202,10 @@ class GamesController extends Controller
     {
         $lineups = $game->lineups()->with('player')->orderBy('batting_order')->get();
         $previousGame = $this->previousLineupGame($game->id, $game->game_date);
+        $previousLineupData = $this->previousLineupEntries($previousGame);
+        $players = Player::orderBy('name')->get();
 
-        return view('games.upcoming-edit', compact('game', 'lineups', 'previousGame'));
+        return view('games.upcoming-edit', compact('game', 'lineups', 'previousGame', 'previousLineupData', 'players'));
     }
 
     public function updateUpcoming(UpdateUpcomingGameRequest $request, Game $game)
@@ -191,28 +219,25 @@ class GamesController extends Controller
 
         $keptLineupIds = [];
 
-        foreach ($request->player_names as $index => $name) {
-            $name = trim($name);
+        foreach ($request->player_ids as $index => $playerId) {
             $lineupId = ($request->lineup_ids ?? [])[$index] ?? null;
 
-            if ($name === '') {
+            if (empty($playerId)) {
                 continue;
             }
-
-            $player = Player::firstOrCreate(['name' => $name]);
 
             $lineup = $lineupId ? Lineup::find($lineupId) : null;
 
             if ($lineup) {
                 $lineup->update([
-                    'player_id' => $player->id,
+                    'player_id' => $playerId,
                     'batting_order' => $index + 1,
                     'position' => $request->position[$index] ?? '',
                 ]);
             } else {
                 $lineup = Lineup::create([
                     'game_id' => $game->id,
-                    'player_id' => $player->id,
+                    'player_id' => $playerId,
                     'batting_order' => $index + 1,
                     'position' => $request->position[$index] ?? '',
                 ]);
@@ -231,7 +256,7 @@ class GamesController extends Controller
 
     public function edit(Game $game)
     {
-        $stats = $game->playerGameStats()->with('player')->get();
+        $stats = $game->playerGameStats()->with('player')->orderBy('batting_order')->orderBy('id')->get();
         $rowsAreBlankPlaceholders = false;
 
         if ($stats->isEmpty()) {
@@ -243,6 +268,7 @@ class GamesController extends Controller
                     $stat = new PlayerGameStat([
                         'player_id' => $lineup->player_id,
                         'position' => $lineup->position,
+                        'batting_order' => $lineup->batting_order,
                     ]);
                     $stat->setRelation('player', $lineup->player);
                     $stat->lineup_id = $lineup->id;
@@ -253,8 +279,8 @@ class GamesController extends Controller
                 // Upcoming game with no lineup yet — show empty rows so the user
                 // can enter names, positions, and box-score stats.
                 $rowsAreBlankPlaceholders = true;
-                $stats = collect(range(1, 9))->map(function () {
-                    $stat = new PlayerGameStat();
+                $stats = collect(range(1, 9))->map(function ($order) {
+                    $stat = new PlayerGameStat(['batting_order' => $order]);
                     $stat->setRelation('player', new Player(['name' => '']));
                     $stat->lineup_id = null;
 
@@ -271,18 +297,18 @@ class GamesController extends Controller
                     if (empty($stat->position)) {
                         $stat->position = $lineup->position;
                     }
+                    if (empty($stat->batting_order)) {
+                        $stat->batting_order = $lineup->batting_order;
+                    }
                 }
             });
         }
 
-        // Overwriting player_names[] on a row that already has a stat_id/lineup_id
-        // renames the existing linked Player in place (see update()) rather than
-        // reassigning to a different player — safe for fixing a typo, not for
-        // bulk-swapping in a different roster. Only offer the previous-lineup
-        // template when every row is still an unlinked blank placeholder.
         $previousGame = $rowsAreBlankPlaceholders ? $this->previousLineupGame($game->id, $game->game_date) : null;
+        $previousLineupData = $this->previousLineupEntries($previousGame);
+        $players = Player::orderBy('name')->get();
 
-        return view('games.edit', compact('game', 'stats', 'previousGame'));
+        return view('games.edit', compact('game', 'stats', 'previousGame', 'previousLineupData', 'players'));
     }
 
     public function update(UpdateGameRequest $request, Game $game)
@@ -308,18 +334,15 @@ class GamesController extends Controller
             if ($statId) {
                 $stat = PlayerGameStat::with('player')->find($statId);
 
-                if (!$stat || !$stat->player) continue;
-
-                $stat->player->name = $name;
-                $stat->player->save();
+                if (!$stat || !$stat->player) {
+                    continue;
+                }
             } elseif ($lineupId && !$isCompleted) {
-                // Still upcoming (no score entered yet) — just keep the lineup's
-                // player in sync, no box score exists to create yet.
+                // Still upcoming (no score entered yet) — update lineup position/order only.
+                // Player names are fixed on this form; rename via 選手 instead.
                 $lineup = Lineup::with('player')->find($lineupId);
 
                 if ($lineup && $lineup->player) {
-                    $lineup->player->name = $name;
-                    $lineup->player->save();
                     $lineup->update([
                         'batting_order' => $index + 1,
                         'position' => $request->position[$index] ?? '',
@@ -337,6 +360,7 @@ class GamesController extends Controller
 
             $stat->fill([
                 'position' => $request->position[$index] ?? null,
+                'batting_order' => $index + 1,
                 'at_bats' => $request->ab[$index] ?? 0,
                 'runs' => $request->r[$index] ?? 0,
                 'hits' => $request->h[$index] ?? 0,
