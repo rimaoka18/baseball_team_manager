@@ -76,4 +76,19 @@ class RosterTest extends TestCase
         $response->assertSessionHasErrors('jersey_number');
         $this->assertSame(1, Player::where('jersey_number', 18)->count());
     }
+
+    public function test_player_show_page_displays_stats_card(): void
+    {
+        $player = Player::create(['name' => '今岡 稜', 'jersey_number' => 18]);
+
+        $response = $this->get(route('roster.players.show', $player));
+
+        $response->assertStatus(200);
+        $response->assertSee('#18');
+        $response->assertSee('今岡 稜 の成績');
+        $response->assertSee('打撃成績');
+        $response->assertSee('投手成績');
+        $response->assertSee('打率：');
+        $response->assertSee('防御率：');
+    }
 }
