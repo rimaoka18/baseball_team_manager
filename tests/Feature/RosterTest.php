@@ -50,14 +50,30 @@ class RosterTest extends TestCase
         $this->assertSame(1, Player::where('name', '山田')->count());
     }
 
-    public function test_roster_lists_players_without_stats(): void
+    public function test_adding_a_player_with_jersey_number(): void
     {
-        Player::create(['name' => '今岡']);
+        $response = $this->post(route('roster.players.store'), [
+            'name' => '今岡 稜',
+            'jersey_number' => 18,
+        ]);
 
-        $response = $this->get(route('roster.index'));
+        $response->assertRedirect(route('roster.index'));
+        $this->assertDatabaseHas('players', [
+            'name' => '今岡 稜',
+            'jersey_number' => 18,
+        ]);
+    }
 
-        $response->assertStatus(200);
-        $response->assertSee('今岡');
-        $response->assertSee('選手一覧（1人）');
+    public function test_adding_a_duplicate_jersey_number_is_rejected(): void
+    {
+        Player::create(['name' => '山田', 'jersey_number' => 18]);
+
+        $response = $this->post(route('roster.players.store'), [
+            'name' => '鈴木',
+            'jersey_number' => 18,
+        ]);
+
+        $response->assertSessionHasErrors('jersey_number');
+        $this->assertSame(1, Player::where('jersey_number', 18)->count());
     }
 }

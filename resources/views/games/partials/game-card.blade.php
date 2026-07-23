@@ -38,13 +38,13 @@
 		</span>
 	</div>
 
-	<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 mt-2">
+	<div class="grid grid-cols-[minmax(96px,1fr)_minmax(0,11rem)_minmax(96px,1fr)] items-center gap-3 mt-2">
 		<div class="flex flex-col items-center">
-			<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200" style="width: 96px; height: 96px;">
+			<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200 shrink-0" style="width: 96px; height: 96px;">
 			<span class="text-sm font-bold text-bf-navy leading-tight mt-1">Blitz Fang</span>
 		</div>
 
-		<div class="flex flex-col items-center justify-center text-center px-2">
+		<div class="flex flex-col items-center justify-center text-center px-2 min-w-0">
 			@if ($result)
 				<div class="text-2xl font-bold text-bf-navy leading-tight">
 					{{ $game->team_score }} - {{ $game->opponent_score }}
@@ -53,12 +53,12 @@
 				<div class="text-base font-semibold text-gray-400 leading-tight">vs</div>
 			@endif
 			@if ($game->location)
-				<div class="text-xs text-gray-500 mt-1">{{ $game->location }}</div>
+				<div class="text-xs text-gray-500 mt-1 break-all">{{ $game->location }}</div>
 			@endif
 		</div>
 
 		<div class="flex flex-col items-center">
-			<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center" style="width: 96px; height: 96px;">
+			<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center shrink-0" style="width: 96px; height: 96px;">
 				<span class="text-3xl font-semibold text-gray-500">{{ $opponentInitial }}</span>
 			</div>
 			<span class="text-sm font-bold text-bf-navy leading-tight mt-1">{{ $game->opponent ?? '未入力' }}</span>

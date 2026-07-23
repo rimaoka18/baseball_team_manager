@@ -94,7 +94,7 @@
                                     <select name="player_names[]" class="player-name-input w-36 px-1 py-1 border rounded">
                                         <option value="">-</option>
                                         @foreach ($players as $player)
-                                            <option value="{{ $player->name }}">{{ $player->name }}</option>
+                                            <option value="{{ $player->name }}">{{ $player->rosterLabel() }}</option>
                                         @endforeach
                                     </select>
                                 @endif
@@ -154,7 +154,7 @@
             <select name="player_names[]" class="player-name-input w-36 px-1 py-1 border rounded">
                 <option value="">-</option>
                 @foreach ($players as $player)
-                    <option value="{{ $player->name }}">{{ $player->name }}</option>
+                    <option value="{{ $player->name }}">{{ $player->rosterLabel() }}</option>
                 @endforeach
             </select>
             <input type="hidden" name="stat_ids[]" value="">

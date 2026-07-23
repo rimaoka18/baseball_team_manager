@@ -22,6 +22,12 @@
 	<h3 class="text-lg font-semibold text-bf-navy mb-4">選手を追加</h3>
 	<form method="POST" action="{{ route('roster.players.store') }}" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
 		@csrf
+		<div class="w-24 shrink-0">
+			<label class="block text-sm font-medium text-bf-navy mb-1">背番号</label>
+			<input type="number" name="jersey_number" value="{{ old('jersey_number') }}" min="0" max="99"
+				placeholder="18"
+				class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
+		</div>
 		<div class="flex-1">
 			<label class="block text-sm font-medium text-bf-navy mb-1">選手名</label>
 			<input type="text" name="name" value="{{ old('name') }}" required
@@ -111,6 +117,9 @@
 			<table id="player-stats-table" class="min-w-full text-sm">
 				<thead class="bg-gray-50 text-gray-600 text-sm font-medium">
 					<tr>
+						<th class="px-4 py-2 text-left cursor-pointer select-none" data-sort-key="jersey" onclick="sortPlayerStatsTable('jersey')">
+							背番号 <span class="sort-indicator text-xs"></span>
+						</th>
 						<th class="px-4 py-2 text-left cursor-pointer select-none" data-sort-key="name" onclick="sortPlayerStatsTable('name')">
 							選手名 <span class="sort-indicator text-xs"></span>
 						</th>
@@ -133,13 +142,15 @@
 				</thead>
 				<tbody id="player-stats-rows" class="divide-y divide-gray-100 text-gray-800" data-sort-key="avg" data-sort-dir="desc">
 					@foreach ($allPlayerStats as $row)
-						<tr class="hover:bg-gray-50"
+						<tr class="hover:bg-gray-50 cursor-pointer" onclick="location.href='{{ route('roster.players.show', $row['player']) }}'"
+							data-jersey="{{ $row['player']->jersey_number ?? '' }}"
 							data-name="{{ $row['player']->name }}"
 							data-at-bats="{{ $row['at_bats'] }}"
 							data-hits="{{ $row['hits'] }}"
 							data-avg="{{ is_null($row['avg']) ? '' : $row['avg'] }}"
 							data-ip="{{ $row['innings_pitched'] }}"
 							data-era="{{ is_null($row['era']) ? '' : $row['era'] }}">
+							<td class="px-4 py-2">{{ is_null($row['player']->jersey_number) ? '-' : $row['player']->jersey_number }}</td>
 							<td class="px-4 py-2">{{ $row['player']->name }}</td>
 							<td class="px-4 py-2 text-right">{{ $row['at_bats'] }}</td>
 							<td class="px-4 py-2 text-right">{{ $row['hits'] }}</td>

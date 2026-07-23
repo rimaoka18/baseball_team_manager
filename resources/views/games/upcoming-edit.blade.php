@@ -13,7 +13,7 @@
 
     <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
         <h2 class="text-lg font-semibold text-bf-navy mb-4">試合情報</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-bf-navy">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-bf-navy">
             <div class="min-w-0">
                 <label class="block text-sm font-medium">試合日</label>
                 <input type="date" name="game_date" value="{{ old('game_date', $game->game_date) }}" required class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
@@ -21,8 +21,7 @@
 
             <div class="min-w-0">
                 <label class="block text-sm font-medium">開始時刻</label>
-                <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}"
-                    class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-bf-gold/50 focus:border-bf-navy">
+                <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}" class="mt-1 w-full min-w-0 max-w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
             </div>
 
             <div class="min-w-0">
@@ -89,7 +88,7 @@
                                 <select name="player_ids[]" class="w-40 px-1 py-1 border rounded">
                                     <option value="">-</option>
                                     @foreach ($players as $player)
-                                        <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i, (string) ($lineup?->player_id ?? '')) === (string) $player->id)>{{ $player->name }}</option>
+                                        <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i, (string) ($lineup?->player_id ?? '')) === (string) $player->id)>{{ $player->rosterLabel() }}</option>
                                     @endforeach
                                 </select>
                                 <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup?->id ?? '') }}">

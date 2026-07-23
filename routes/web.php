@@ -31,6 +31,9 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
 
 Route::get('/roster', [PlayerController::class, 'roster'])->name('roster.index');
 Route::post('/roster/players', [PlayerController::class, 'store'])->name('roster.players.store');
+Route::get('/roster/players/{player}', [PlayerController::class, 'show'])->name('roster.players.show');
+Route::get('/roster/players/{player}/edit', [PlayerController::class, 'edit'])->name('roster.players.edit');
+Route::put('/roster/players/{player}', [PlayerController::class, 'update'])->name('roster.players.update');
 
 // プレイヤー検索
 Route::get('/players/search', [PlayerController::class, 'search'])->name('players.search');

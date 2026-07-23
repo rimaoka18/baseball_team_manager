@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StorePlayerRequest extends FormRequest
+class UpdatePlayerRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,14 +19,14 @@ class StorePlayerRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('players', 'name'),
+                Rule::unique('players', 'name')->ignore($this->route('player')),
             ],
             'jersey_number' => [
                 'nullable',
                 'integer',
                 'min:0',
                 'max:99',
-                Rule::unique('players', 'jersey_number'),
+                Rule::unique('players', 'jersey_number')->ignore($this->route('player')),
             ],
         ];
     }

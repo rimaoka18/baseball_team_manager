@@ -102,7 +102,7 @@
                             <select name="player_ids[]" class="w-36 px-1 py-1 border rounded">
                                 <option value="">-</option>
                                 @foreach ($players as $player)
-                                    <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i) === (string) $player->id)>{{ $player->name }}</option>
+                                    <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i) === (string) $player->id)>{{ $player->rosterLabel() }}</option>
                                 @endforeach
                             </select>
                         </td>
