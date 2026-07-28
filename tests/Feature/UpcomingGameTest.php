@@ -6,12 +6,20 @@ use App\Models\Game;
 use App\Models\Lineup;
 use App\Models\Player;
 use App\Models\PlayerGameStat;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UpcomingGameTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_create_form_loads(): void
     {

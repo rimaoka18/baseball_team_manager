@@ -18,6 +18,7 @@
 
 @include('partials.validation-errors')
 
+@auth
 <div class="bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
 	<h3 class="text-lg font-semibold text-bf-navy mb-4">選手を追加</h3>
 	<form method="POST" action="{{ route('roster.players.store') }}" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
@@ -41,6 +42,7 @@
 	</form>
 	<p class="text-sm text-gray-500 mt-3">ここに登録した選手は、スケジュールのスタメン選択で選べます。</p>
 </div>
+@endauth
 
 <div class="bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
 	<h3 class="text-lg font-bold text-gray-800 mb-4">成績ランキング</h3>

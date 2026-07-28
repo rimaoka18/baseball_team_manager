@@ -18,6 +18,7 @@
             @endif
         </h2>
 
+        @auth
         <div class="flex justify-center gap-2 mt-4">
             <a href="{{ route('games.edit', $game) }}"
                 class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-4 py-1.5 rounded-lg hover:bg-bf-gold/20 transition">
@@ -33,6 +34,7 @@
                 </button>
             </form>
         </div>
+        @endauth
     </div>
 
     {{-- Starting Lineup (game not played yet, no box score entered) --}}
