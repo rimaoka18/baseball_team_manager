@@ -4,151 +4,146 @@
 
 @include('partials.validation-errors')
 
-<h1 class="text-2xl font-bold mb-6">試合予定を編集</h1>
+<div class="max-w-[980px] mx-auto">
 
-<form action="{{ route('games.upcoming.update', $game) }}" method="POST" class="space-y-6">
+<h1 class="font-heading text-3xl font-extrabold mb-6">試合予定を編集</h1>
+
+<form id="upcoming-edit-form" action="{{ route('games.upcoming.update', $game) }}" method="POST">
     @csrf
     @method('PUT')
     <input type="hidden" name="from" value="{{ request('from') }}">
 
-    <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 class="text-lg font-semibold text-bf-navy mb-4">試合情報</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-bf-navy">
-            <div class="min-w-0 overflow-hidden">
-                <label class="block text-sm font-medium">試合日</label>
-                <input type="date" name="game_date" value="{{ old('game_date', $game->game_date) }}" required class="mt-1 w-full min-w-0 max-w-full box-border border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
-            </div>
-
-            <div class="min-w-0 overflow-hidden">
-                <label class="block text-sm font-medium">開始時刻</label>
-                <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}" class="mt-1 w-full min-w-0 max-w-full box-border border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
-            </div>
-
-            <div class="min-w-0 overflow-hidden">
-                <label class="block text-sm font-medium">場所</label>
-                <input type="text" name="location" value="{{ old('location', $game->location) }}" required class="mt-1 w-full min-w-0 max-w-full box-border border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
-            </div>
-
-            <div class="min-w-0 overflow-hidden">
-                <label class="block text-sm font-medium">相手チーム名</label>
-                <input type="text" name="opponent" value="{{ old('opponent', $game->opponent) }}" required class="mt-1 w-full min-w-0 max-w-full box-border border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
-            </div>
+    <h6 class="bf-kicker mb-3">試合情報</h6>
+    <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+        <div>
+            <label class="block text-xs text-bf-ink/60 mb-1">試合日</label>
+            <input type="date" name="game_date" value="{{ old('game_date', $game->game_date) }}" required class="bf-input">
+        </div>
+        <div>
+            <label class="block text-xs text-bf-ink/60 mb-1">開始時刻</label>
+            <input type="time" name="game_time" value="{{ old('game_time', $game->game_time_formatted) }}" class="bf-input">
+        </div>
+        <div>
+            <label class="block text-xs text-bf-ink/60 mb-1">場所</label>
+            <input type="text" name="location" value="{{ old('location', $game->location) }}" required class="bf-input">
+        </div>
+        <div>
+            <label class="block text-xs text-bf-ink/60 mb-1">相手チーム名</label>
+            <input type="text" name="opponent" value="{{ old('opponent', $game->opponent) }}" required class="bf-input">
         </div>
     </div>
+
+    <hr class="border-t-2 border-bf-divider my-8">
 
     @php
         $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
     @endphp
 
-    <div class="bg-bf-cream rounded-xl border border-gray-200 shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-bf-navy">スタメン編集</h2>
-            @include('games.partials.use-previous-lineup-button', ['previousGame' => $previousGame])
+    <div class="flex items-baseline justify-between gap-3 flex-wrap mb-4">
+        <h6 class="bf-kicker m-0">スタメン編集</h6>
+        @include('games.partials.use-previous-lineup-button', ['previousGame' => $previousGame])
+    </div>
+
+    @if ($players->isEmpty())
+        <div class="border border-bf-divider px-4 py-8 text-center">
+            <p class="font-heading font-extrabold mb-1">選手がいません</p>
+            <p class="text-sm text-bf-ink/60 mb-4">先に選手を追加してから、スタメンを選んでください</p>
+            <a href="{{ route('roster.index') }}" class="bf-btn bf-btn-primary">選手を開く</a>
         </div>
-
-        @if ($players->isEmpty())
-            <div class="rounded-xl border border-dashed border-gray-300 bg-white/50 px-4 py-8 text-center">
-                <p class="text-gray-800 font-semibold mb-1">選手がいません</p>
-                <p class="text-sm text-gray-500 mb-4">先に選手を追加してから、スタメンを選んでください</p>
-                <a href="{{ route('roster.index') }}"
-                    class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-navy-light transition">
-                    選手を開く
-                </a>
+    @else
+        <div>
+            <div class="flex items-center gap-3 pb-2 border-b-2 border-bf-divider bf-kicker">
+                <div class="w-8 shrink-0"></div>
+                <div class="w-7 text-center shrink-0">打順</div>
+                <div class="flex-1">選手名</div>
+                <div class="w-[100px] shrink-0">守備位置</div>
             </div>
-        @else
-        <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-            <table class="min-w-full text-sm bg-bf-cream">
-                <thead class="bg-bf-navy text-white">
-                    <tr>
-                        <th class="px-2 py-1 border w-8"></th>
-                        <th class="px-2 py-1 border">打順</th>
-                        <th class="px-2 py-1 border">選手名</th>
-                        <th class="px-2 py-1 border">守備位置</th>
-                    </tr>
-                </thead>
-                <tbody id="lineup-rows" class="text-gray-800">
-                    @php
-                        $rowCount = max(9, $lineups->count());
-                    @endphp
 
-                    @for ($i = 0; $i < $rowCount; $i++)
-                        @php
-                            $lineup = $lineups->get($i);
-                        @endphp
-                        <tr>
-                            <td class="border px-2 py-1 text-center drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none">
-                                <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                                    <circle cx="9" cy="6" r="1.5" /><circle cx="15" cy="6" r="1.5" />
-                                    <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
-                                    <circle cx="9" cy="18" r="1.5" /><circle cx="15" cy="18" r="1.5" />
-                                </svg>
-                            </td>
-                            <td class="border px-2 py-1 text-center font-semibold batting-order">{{ $i + 1 }}</td>
-                            <td class="border px-2 py-1">
-                                <select name="player_ids[]" class="w-40 px-1 py-1 border rounded">
-                                    <option value="">-</option>
-                                    @foreach ($players as $player)
-                                        <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i, (string) ($lineup?->player_id ?? '')) === (string) $player->id)>{{ $player->rosterLabel() }}</option>
-                                    @endforeach
-                                </select>
-                                <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup?->id ?? '') }}">
-                            </td>
-                            <td class="border px-2 py-1">
-                                <select name="position[]" class="w-24 px-1 py-1 border rounded">
-                                    <option value="">-</option>
-                                    @foreach ($positions as $position)
-                                        <option value="{{ $position }}" @selected(old('position.' . $i, $lineup?->position ?? '') === $position)>{{ $position }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                        </tr>
-                    @endfor
-                </tbody>
-            </table>
+            <div id="lineup-rows">
+                @php
+                    $rowCount = max(9, $lineups->count());
+                @endphp
+
+                @for ($i = 0; $i < $rowCount; $i++)
+                    @php
+                        $lineup = $lineups->get($i);
+                    @endphp
+                    <div class="lineup-row bf-lineup-row">
+                        <div class="drag-handle bf-drag-handle shrink-0 touch-none select-none" title="ドラッグして並び替え">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>
+                        </div>
+                        <div class="w-7 text-center shrink-0 font-heading font-extrabold text-[15px] text-bf-navy batting-order">{{ $i + 1 }}</div>
+                        <div class="flex-1 min-w-[140px]">
+                            <select name="player_ids[]" class="bf-select">
+                                <option value="">-</option>
+                                @foreach ($players as $player)
+                                    <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i, (string) ($lineup?->player_id ?? '')) === (string) $player->id)>{{ $player->rosterLabel() }}</option>
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup?->id ?? '') }}">
+                        </div>
+                        <div class="w-[100px] shrink-0">
+                            <select name="position[]" class="bf-select">
+                                <option value="">-</option>
+                                @foreach ($positions as $position)
+                                    <option value="{{ $position }}" @selected(old('position.' . $i, $lineup?->position ?? '') === $position)>{{ $position }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                @endfor
+            </div>
         </div>
 
         <div class="mt-4">
-            <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-bf-navy-light transition">＋選手を追加</button>
+            <button type="button" id="add-lineup-row-btn" onclick="addLineupRow()" class="bf-btn bf-btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                選手を追加
+            </button>
             <p id="lineup-max-message" class="text-sm text-bf-danger mt-1 hidden">選手は最大20人まで登録できます</p>
         </div>
-        @endif
-    </div>
+    @endif
 
-    <div>
-        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-full hover:bg-bf-navy-light transition">
-            更新する
-        </button>
-    </div>
+    <hr class="border-t-2 border-bf-divider my-8">
 </form>
 
-<form action="{{ route('games.destroy', $game) }}" method="POST" class="mt-6 pt-6 border-t border-gray-200"
+<form id="delete-game-form" action="{{ route('games.destroy', $game) }}" method="POST"
     onsubmit="return confirm('本当に削除しますか？');">
     @csrf
     @method('DELETE')
-    <button type="submit" class="bg-red-50 text-red-600 border border-red-200 px-6 py-2 rounded-lg hover:bg-red-100 transition">
+</form>
+
+<div class="flex items-center justify-between gap-4 flex-wrap">
+    <button type="submit" form="upcoming-edit-form" class="bf-btn bf-btn-primary px-8">
+        更新する
+    </button>
+    <button type="submit" form="delete-game-form" class="bf-btn bf-btn-ghost">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         この試合を削除
     </button>
-</form>
+</div>
+
+</div>
 
 @if ($players->isNotEmpty())
 <script>
     const LINEUP_MAX_ROWS = 20;
 
     function addLineupRow() {
-        const tbody = document.getElementById('lineup-rows');
+        const container = document.getElementById('lineup-rows');
 
-        if (tbody.querySelectorAll('tr').length >= LINEUP_MAX_ROWS) {
+        if (container.querySelectorAll('.lineup-row').length >= LINEUP_MAX_ROWS) {
             return;
         }
 
-        const row = tbody.querySelector('tr:last-child');
+        const row = container.querySelector('.lineup-row:last-child');
         const newRow = row.cloneNode(true);
         newRow.querySelectorAll('input[type="hidden"]').forEach(input => input.value = '');
         newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
-        tbody.appendChild(newRow);
+        container.appendChild(newRow);
         renumberLineupRows();
 
-        if (tbody.querySelectorAll('tr').length >= LINEUP_MAX_ROWS) {
+        if (container.querySelectorAll('.lineup-row').length >= LINEUP_MAX_ROWS) {
             document.getElementById('lineup-max-message').classList.remove('hidden');
             document.getElementById('add-lineup-row-btn').disabled = true;
             document.getElementById('add-lineup-row-btn').classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
@@ -174,31 +169,31 @@
     function usePreviousLineup() {
         if (!PREVIOUS_LINEUP.length) return;
 
-        const tbody = document.getElementById('lineup-rows');
-        const hasSelection = Array.from(tbody.querySelectorAll('select[name="player_ids[]"]'))
+        const container = document.getElementById('lineup-rows');
+        const hasSelection = Array.from(container.querySelectorAll('select[name="player_ids[]"]'))
             .some(select => select.value !== '');
 
         if (hasSelection && !confirm('入力中の内容を前回のスタメンで上書きします。よろしいですか？')) {
             return;
         }
 
-        while (tbody.querySelectorAll('tr').length < PREVIOUS_LINEUP.length) {
+        while (container.querySelectorAll('.lineup-row').length < PREVIOUS_LINEUP.length) {
             addLineupRow();
         }
 
-        tbody.querySelectorAll('tr').forEach((row, index) => applyLineupEntry(row, PREVIOUS_LINEUP[index]));
+        container.querySelectorAll('.lineup-row').forEach((row, index) => applyLineupEntry(row, PREVIOUS_LINEUP[index]));
     }
 
     (function () {
-        const tbody = document.getElementById('lineup-rows');
+        const container = document.getElementById('lineup-rows');
         let draggedRow = null;
         let draggedHandle = null;
         let pointerId = null;
 
         function rowAtPoint(x, y) {
             const el = document.elementFromPoint(x, y);
-            const row = el && el.closest('tr');
-            return (row && row.parentElement === tbody) ? row : null;
+            const row = el && el.closest('.lineup-row');
+            return (row && row.parentElement === container) ? row : null;
         }
 
         function endDrag() {
@@ -214,11 +209,11 @@
             renumberLineupRows();
         }
 
-        tbody.addEventListener('pointerdown', (e) => {
+        container.addEventListener('pointerdown', (e) => {
             const handle = e.target.closest('.drag-handle');
             if (!handle) return;
 
-            draggedRow = handle.closest('tr');
+            draggedRow = handle.closest('.lineup-row');
             draggedHandle = handle;
             pointerId = e.pointerId;
             handle.setPointerCapture(pointerId);
@@ -226,7 +221,7 @@
             e.preventDefault();
         });
 
-        tbody.addEventListener('pointermove', (e) => {
+        container.addEventListener('pointermove', (e) => {
             if (!draggedRow || e.pointerId !== pointerId) return;
             e.preventDefault();
 
@@ -235,15 +230,15 @@
 
             const rect = targetRow.getBoundingClientRect();
             const isAfter = (e.clientY - rect.top) > rect.height / 2;
-            tbody.insertBefore(draggedRow, isAfter ? targetRow.nextSibling : targetRow);
+            container.insertBefore(draggedRow, isAfter ? targetRow.nextSibling : targetRow);
         });
 
-        tbody.addEventListener('pointerup', (e) => {
+        container.addEventListener('pointerup', (e) => {
             if (e.pointerId !== pointerId) return;
             endDrag();
         });
 
-        tbody.addEventListener('pointercancel', (e) => {
+        container.addEventListener('pointercancel', (e) => {
             if (e.pointerId !== pointerId) return;
             endDrag();
         });
