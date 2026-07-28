@@ -7,7 +7,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-bf-navy text-gray-200 overflow-x-hidden">
-    <header class="border-b border-white/10">
+    <header class="border-b border-white/10 relative">
+        <div class="absolute top-4 right-4 text-xs">
+            @auth
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-gray-300 hover:text-white underline">ログアウト</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="text-gray-300 hover:text-white underline">ログイン</a>
+            @endauth
+        </div>
         <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col items-center">
             <div class="flex items-center gap-4 mb-3">
                 <img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="w-14 h-14 rounded-full object-cover border border-white/20">

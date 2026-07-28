@@ -6,10 +6,12 @@
 
 <div class="flex items-center justify-between">
 	<h2 class="text-lg font-bold text-bf-cream">スケジュール</h2>
+	@auth
 	<a href="{{ route('games.upcoming.create') }}"
 		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full transition">
 		＋ 試合を追加
 	</a>
+	@endauth
 </div>
 
 <div class="max-w-2xl mx-auto bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
@@ -17,10 +19,12 @@
 		<div class="text-center py-8">
 			<p class="text-gray-600 font-medium mb-1">予定されている試合はありません</p>
 			<p class="text-sm text-gray-500 mb-4">試合を追加してスタメンを登録しましょう</p>
+			@auth
 			<a href="{{ route('games.upcoming.create') }}"
 				class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
 				＋ 試合を追加
 			</a>
+			@endauth
 		</div>
 	@else
 		@php
@@ -83,15 +87,19 @@
 
 				<div class="flex items-center justify-center gap-2 mt-4">
 					@unless ($hasScore)
-						<a href="{{ route('games.upcoming.edit', $game) }}"
-							class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-3 py-1 rounded-lg hover:bg-bf-gold/20">
-							予定・スタメンを編集
-						</a>
+						@auth
+							<a href="{{ route('games.upcoming.edit', $game) }}"
+								class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-3 py-1 rounded-lg hover:bg-bf-gold/20">
+								予定・スタメンを編集
+							</a>
+						@endauth
 					@endunless
-					<a href="{{ $scoreActionRoute }}"
-						class="bg-bf-navy text-white text-sm px-3 py-1 rounded-lg hover:bg-bf-navy-light">
-						{{ $scoreActionLabel }}
-					</a>
+					@if ($hasScore || auth()->check())
+						<a href="{{ $scoreActionRoute }}"
+							class="bg-bf-navy text-white text-sm px-3 py-1 rounded-lg hover:bg-bf-navy-light">
+							{{ $scoreActionLabel }}
+						</a>
+					@endif
 				</div>
 
 				<div class="border-t border-bf-navy/15 my-4"></div>
@@ -101,10 +109,12 @@
 						<p class="text-gray-800 font-semibold mb-1">スタメン未登録</p>
 						<p class="text-sm text-gray-500 mb-4">打順と守備位置を登録するとここに表示されます</p>
 						@unless ($hasScore)
-							<a href="{{ route('games.upcoming.edit', $game) }}"
-								class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
-								スタメンを登録する
-							</a>
+							@auth
+								<a href="{{ route('games.upcoming.edit', $game) }}"
+									class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
+									スタメンを登録する
+								</a>
+							@endauth
 						@endunless
 					</div>
 				@else

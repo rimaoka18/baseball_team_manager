@@ -6,12 +6,20 @@ use App\Models\Game;
 use App\Models\Lineup;
 use App\Models\Player;
 use App\Models\PlayerGameStat;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class GameStoreTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_create_form_does_not_show_use_previous_lineup_button_when_no_lineup_exists(): void
     {

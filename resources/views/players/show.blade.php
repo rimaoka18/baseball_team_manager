@@ -18,10 +18,12 @@
 
 @include('players.partials.player-stats-card', ['player' => $player])
 
+@auth
 <a href="{{ route('roster.players.edit', $player) }}"
 	class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-5 py-2 rounded-full transition">
 	編集する
 </a>
+@endauth
 
 </div>
 
