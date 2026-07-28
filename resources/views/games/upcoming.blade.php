@@ -2,37 +2,34 @@
 
 @section('content')
 
-<div class="space-y-6">
+<div class="bg-bf-bg text-bf-ink p-6 md:p-8">
+<div class="max-w-2xl mx-auto">
 
-<div class="flex items-center justify-between">
-	<h2 class="text-lg font-bold text-bf-cream">スケジュール</h2>
-	@auth
-	<a href="{{ route('games.upcoming.create') }}"
-		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full transition">
-		＋ 試合を追加
-	</a>
-	@endauth
-</div>
+	<div class="flex flex-wrap items-end justify-between gap-4 mb-4">
+		<h1 class="font-heading text-3xl md:text-[42px] font-extrabold leading-none">スケジュール</h1>
+		@auth
+		<a href="{{ route('games.upcoming.create') }}" class="bf-btn bf-btn-primary">
+			試合を追加
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+		</a>
+		@endauth
+	</div>
 
-<div class="max-w-2xl mx-auto bg-bf-cream rounded-xl shadow-sm border border-gray-200 p-6">
+	<hr class="border-t-2 border-bf-divider">
+
 	@if ($upcomingGames->isEmpty())
-		<div class="text-center py-8">
-			<p class="text-gray-600 font-medium mb-1">予定されている試合はありません</p>
-			<p class="text-sm text-gray-500 mb-4">試合を追加してスタメンを登録しましょう</p>
+		<div class="border border-bf-divider px-4 py-8 mt-6 text-center">
+			<p class="font-heading font-extrabold text-lg mb-1">予定されている試合はありません</p>
+			<p class="text-sm text-bf-ink/60 mb-4">試合を追加してスタメンを登録しましょう</p>
 			@auth
-			<a href="{{ route('games.upcoming.create') }}"
-				class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
-				＋ 試合を追加
+			<a href="{{ route('games.upcoming.create') }}" class="bf-btn bf-btn-primary">
+				試合を追加
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
 			</a>
 			@endauth
 		</div>
 	@else
-		@php
-			$monthLabel = \Illuminate\Support\Carbon::parse($upcomingGames->first()->game_date)->translatedFormat('M');
-		@endphp
-		<div class="flex items-stretch justify-center gap-2 mb-5 overflow-x-auto pb-1">
-			<span class="shrink-0 self-center text-xs font-bold text-gray-400 uppercase tracking-wide pr-1">{{ $monthLabel }}</span>
-
+		<div class="flex gap-6 overflow-x-auto my-6">
 			@foreach ($upcomingGames as $index => $game)
 				@php
 					$date = \Illuminate\Support\Carbon::parse($game->game_date);
@@ -41,13 +38,9 @@
 				<button type="button"
 					id="upcoming-tab-{{ $index }}"
 					onclick="showUpcomingGame({{ $index }})"
-					style="width: 4rem; min-width: 4rem; max-width: 4rem; height: 4rem;"
-					class="upcoming-tab-btn shrink-0 flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl border px-1 py-1.5 transition {{ $isActive ? 'bg-bf-navy border-bf-navy text-white shadow-md' : 'bg-white border-gray-200 text-gray-500 shadow-sm hover:border-bf-navy/40 hover:text-bf-navy' }}">
-					<span class="w-full text-center text-[10px] font-semibold leading-none opacity-60">{{ $date->format('n/j') }}</span>
-					<span class="w-full text-center text-xs font-bold leading-tight truncate">{{ $game->opponent ?? '未定' }}</span>
-					<span class="w-full text-center text-[10px] leading-none opacity-60 truncate">
-						{{ $game->game_time_formatted ?? '未定' }}
-					</span>
+					class="upcoming-tab-btn bf-tab {{ $isActive ? 'bf-tab-active' : '' }}">
+					<span class="block text-[10px] tracking-[0.08em] uppercase opacity-60">{{ $date->format('n/j') }}</span>
+					<span class="block text-[15px] font-heading font-extrabold whitespace-nowrap">{{ $game->opponent ?? '未定' }}</span>
 				</button>
 			@endforeach
 		</div>
@@ -58,96 +51,92 @@
 					$hasScore = !is_null($game->team_score) && !is_null($game->opponent_score);
 					$scoreActionLabel = $hasScore ? '試合結果' : '試合結果を入力';
 					$scoreActionRoute = $hasScore ? route('games.show', $game) : route('games.edit', $game);
-					$opponentInitial = $game->opponent ? mb_substr($game->opponent, 0, 1) : '?';
 				@endphp
 
-				<div class="grid grid-cols-[minmax(64px,1fr)_minmax(0,9rem)_minmax(64px,1fr)] items-center gap-3">
-					<div class="flex flex-col items-center">
-						<img src="{{ asset('images/logo.png') }}" alt="Blitz Fang" class="rounded-full object-cover border border-gray-200 shrink-0" style="width: 64px; height: 64px;">
-						<span class="text-xs font-bold text-bf-navy leading-tight mt-1">Blitz Fang</span>
-					</div>
-
-					<div class="flex flex-col items-center justify-center gap-1 px-2 min-w-0 text-center">
-						<span class="text-sm font-semibold text-gray-400">vs</span>
-						@if ($game->game_time_formatted)
-							<span class="text-xs text-gray-500">{{ $game->game_time_formatted }}</span>
-						@endif
-						@if ($game->location)
-							<span class="text-xs text-gray-500 break-all">{{ $game->location }}</span>
-						@endif
-					</div>
-
-					<div class="flex flex-col items-center">
-						<div class="rounded-full bg-gray-200 border border-gray-200 flex items-center justify-center shrink-0" style="width: 64px; height: 64px;">
-							<span class="text-xl font-semibold text-gray-500">{{ $opponentInitial }}</span>
-						</div>
-						<span class="text-xs font-bold text-bf-navy leading-tight mt-1">{{ $game->opponent ?? '未定' }}</span>
-					</div>
+				<div class="flex flex-wrap items-center gap-3 mb-2 text-[13px] text-bf-ink/60">
+					@if ($game->game_time_formatted)
+						<span class="inline-flex items-center gap-1.5">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+							{{ $game->game_time_formatted }}
+						</span>
+					@endif
+					@if ($game->location)
+						<span class="inline-flex items-center gap-1.5">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+							{{ $game->location }}
+						</span>
+					@endif
 				</div>
 
-				<div class="flex items-center justify-center gap-2 mt-4">
+				<h2 class="font-heading text-2xl md:text-[32px] font-extrabold mb-4">
+					Blitz Fang <span class="font-sans font-normal text-bf-ink/50">vs</span> {{ $game->opponent ?? '未定' }}
+				</h2>
+
+				<div class="flex flex-wrap gap-2 mb-6">
 					@unless ($hasScore)
 						@auth
-							<a href="{{ route('games.upcoming.edit', $game) }}"
-								class="border border-bf-navy text-bf-navy bg-bf-cream text-sm px-3 py-1 rounded-lg hover:bg-bf-gold/20">
+							<a href="{{ route('games.upcoming.edit', $game) }}" class="bf-btn bf-btn-secondary">
 								予定・スタメンを編集
 							</a>
 						@endauth
 					@endunless
 					@if ($hasScore || auth()->check())
-						<a href="{{ $scoreActionRoute }}"
-							class="bg-bf-navy text-white text-sm px-3 py-1 rounded-lg hover:bg-bf-navy-light">
+						<a href="{{ $scoreActionRoute }}" class="bf-btn bf-btn-primary">
 							{{ $scoreActionLabel }}
 						</a>
 					@endif
 				</div>
 
-				<div class="border-t border-bf-navy/15 my-4"></div>
+				<hr class="border-t-2 border-bf-divider">
 
-				@if ($game->lineups->isEmpty())
-					<div class="rounded-xl border border-dashed border-gray-300 bg-black/5 px-4 py-8 text-center">
-						<p class="text-gray-800 font-semibold mb-1">スタメン未登録</p>
-						<p class="text-sm text-gray-500 mb-4">打順と守備位置を登録するとここに表示されます</p>
-						@unless ($hasScore)
-							@auth
-								<a href="{{ route('games.upcoming.edit', $game) }}"
-									class="inline-block bg-bf-navy text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-bf-navy-light transition">
-									スタメンを登録する
-								</a>
-							@endauth
-						@endunless
-					</div>
-				@else
-					<div class="flex items-center gap-3 px-1 pb-2 text-sm text-gray-500 font-semibold tracking-wide">
-						<span class="w-8 shrink-0 text-center">打順</span>
-						<span class="w-8 shrink-0 text-center">守備</span>
-						<span>選手名</span>
-					</div>
+				<div class="mt-6">
+					<h4 class="font-heading text-xl font-extrabold mb-3">スタメン</h4>
 
-					<ul id="upcoming-lineup-preview-{{ $index }}" class="divide-y divide-gray-100">
-						@foreach ($game->lineups as $lineup)
-							<li class="flex items-center gap-3 py-2.5 px-1 odd:bg-gray-50/50">
-								<span class="w-8 h-8 shrink-0 rounded-full bg-bf-navy text-white flex items-center justify-center text-sm font-semibold">
-									{{ $lineup->batting_order }}
-								</span>
-								<span class="w-8 shrink-0 text-bf-navy text-sm font-semibold text-center">
-									{{ $lineup->position }}
-								</span>
-								<span class="text-gray-800 font-medium truncate">{{ $lineup->player->name }}</span>
-								@if (!is_null($lineup->player->jersey_number))
-									<span class="shrink-0 text-sm text-gray-500 tabular-nums">
-										#{{ $lineup->player->jersey_number }}
-									</span>
-								@endif
-							</li>
-						@endforeach
-					</ul>
-				@endif
+					@if ($game->lineups->isEmpty())
+						<div class="border border-bf-divider px-4 py-8 text-center">
+							<p class="font-heading font-extrabold text-[17px] mb-1">スタメン未登録</p>
+							<p class="text-sm text-bf-ink/60 mb-4">打順と守備位置を登録するとここに表示されます</p>
+							@unless ($hasScore)
+								@auth
+									<a href="{{ route('games.upcoming.edit', $game) }}" class="bf-btn bf-btn-primary">
+										スタメンを登録する
+									</a>
+								@endauth
+							@endunless
+						</div>
+					@else
+						<p class="text-xs text-bf-ink/50 mb-2 md:hidden">表は横にスクロールできます</p>
+						<div class="overflow-x-auto">
+							<table class="w-full min-w-[420px] text-sm">
+								<thead>
+									<tr class="border-b-2 border-bf-divider">
+										<th class="w-[60px] text-left text-[11px] uppercase tracking-[0.08em] opacity-60 font-semibold pb-2">打順</th>
+										<th class="w-[60px] text-left text-[11px] uppercase tracking-[0.08em] opacity-60 font-semibold pb-2">守備</th>
+										<th class="text-left text-[11px] uppercase tracking-[0.08em] opacity-60 font-semibold pb-2">選手名</th>
+										<th class="w-[70px] text-right text-[11px] uppercase tracking-[0.08em] opacity-60 font-semibold pb-2">背番号</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach ($game->lineups as $lineup)
+										<tr class="border-b border-bf-divider hover:bg-black/5">
+											<td class="py-2.5">{{ $lineup->batting_order }}</td>
+											<td class="py-2.5">{{ $lineup->position }}</td>
+											<td class="py-2.5 font-semibold">{{ $lineup->player->name }}</td>
+											<td class="py-2.5 text-right text-bf-ink/60">
+												{{ !is_null($lineup->player->jersey_number) ? '#'.$lineup->player->jersey_number : '-' }}
+											</td>
+										</tr>
+									@endforeach
+								</tbody>
+							</table>
+						</div>
+					@endif
+				</div>
 			</div>
 		@endforeach
 	@endif
-</div>
 
+</div>
 </div>
 
 <script>
@@ -155,13 +144,8 @@
 		document.querySelectorAll('.upcoming-game-panel').forEach(panel => panel.classList.add('hidden'));
 		document.getElementById('upcoming-panel-' + index).classList.remove('hidden');
 
-		document.querySelectorAll('.upcoming-tab-btn').forEach(btn => {
-			btn.classList.remove('bg-bf-navy', 'border-bf-navy', 'text-white', 'shadow-sm');
-			btn.classList.add('bg-white', 'border-gray-200', 'text-gray-500');
-		});
-		const activeBtn = document.getElementById('upcoming-tab-' + index);
-		activeBtn.classList.remove('bg-white', 'border-gray-200', 'text-gray-500');
-		activeBtn.classList.add('bg-bf-navy', 'border-bf-navy', 'text-white', 'shadow-sm');
+		document.querySelectorAll('.upcoming-tab-btn').forEach(btn => btn.classList.remove('bf-tab-active'));
+		document.getElementById('upcoming-tab-' + index).classList.add('bf-tab-active');
 	}
 </script>
 

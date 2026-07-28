@@ -4,7 +4,7 @@
 
 <div class="max-w-sm mx-auto space-y-6">
 
-<h2 class="text-lg font-bold text-bf-cream text-center">ログイン</h2>
+<h2 class="text-lg font-bold text-bf-navy text-center">ログイン</h2>
 
 @include('partials.validation-errors')
 

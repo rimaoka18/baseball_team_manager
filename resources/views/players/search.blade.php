@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6 text-center text-bf-cream">プレイヤー検索</h1>
+    <h1 class="text-2xl font-bold mb-6 text-center text-bf-navy">プレイヤー検索</h1>
 
     <!-- Search Form -->
     <form method="GET" action="{{ route('players.search') }}" class="flex flex-col sm:flex-row gap-3 items-center justify-center mb-8">
@@ -11,10 +11,10 @@
             name="q"
             placeholder="名前を入力（例：山田 太郎）"
             value="{{ $query }}"
-            class="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 bg-bf-cream text-bf-navy placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-bf-gold">
+            class="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 bg-white text-bf-navy placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-bf-gold">
         <button
             type="submit"
-            class="bg-bf-cream text-bf-navy px-4 py-2 rounded-full hover:bg-bf-gold/20 transition w-full sm:w-auto">
+            class="bg-bf-navy text-white px-4 py-2 rounded-full hover:bg-bf-navy-light transition w-full sm:w-auto">
             検索
         </button>
     </form>
@@ -28,7 +28,7 @@
 
     <div class="mt-6">
         <a href="{{ route('roster.index') }}"
-            class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
+            class="inline-block bg-bf-navy hover:bg-bf-navy-light text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm transition">
             ← 選手に戻る
         </a>
     </div>

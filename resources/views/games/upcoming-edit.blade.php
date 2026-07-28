@@ -115,7 +115,7 @@
     </div>
 
     <div>
-        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition">
+        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-full hover:bg-bf-navy-light transition">
             更新する
         </button>
     </div>
