@@ -13,7 +13,9 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'registrationOpen' => ! User::query()->exists(),
+        ]);
     }
 
     public function login(Request $request)
@@ -36,11 +38,19 @@ class AuthController extends Controller
 
     public function showRegister()
     {
+        if (User::query()->exists()) {
+            return redirect()->route('login');
+        }
+
         return view('auth.register');
     }
 
     public function register(Request $request)
     {
+        if (User::query()->exists()) {
+            return redirect()->route('login');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],

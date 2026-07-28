@@ -26,9 +26,11 @@
 			ログイン
 		</button>
 	</form>
+	@if ($registrationOpen)
 	<p class="text-sm text-gray-500 mt-4 text-center">
 		アカウントをお持ちでない場合は <a href="{{ route('register') }}" class="text-bf-navy underline">新規登録</a>
 	</p>
+	@endif
 </div>
 
 </div>
