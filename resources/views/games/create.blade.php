@@ -139,7 +139,7 @@
     </div>
 
     <div>
-        <button type="submit" class="bg-bf-cream text-bf-navy px-6 py-2 rounded-full hover:bg-bf-gold/20 transition" @disabled($players->isEmpty())>
+        <button type="submit" class="bg-bf-navy text-white px-6 py-2 rounded-full hover:bg-bf-navy-light transition" @disabled($players->isEmpty())>
             保存する
         </button>
     </div>

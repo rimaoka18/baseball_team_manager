@@ -5,9 +5,9 @@
 <div class="space-y-6">
 
 <div class="flex items-center justify-between">
-	<h2 class="text-lg font-bold text-bf-cream">選手</h2>
+	<h2 class="text-lg font-bold text-bf-navy">選手</h2>
 	<a href="{{ route('players.search') }}"
-		class="inline-block bg-bf-cream hover:bg-bf-gold/20 text-bf-navy text-sm font-semibold px-4 py-1.5 rounded-full transition">
+		class="inline-block bg-bf-navy hover:bg-bf-navy-light text-white text-sm font-semibold px-4 py-1.5 rounded-full transition">
 		プレイヤー検索
 	</a>
 </div>

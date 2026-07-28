@@ -8,10 +8,97 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-heading: 'Archivo', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
 
     --color-bf-navy: #1B2340;
     --color-bf-navy-light: #2A3560;
     --color-bf-cream: #EDE3CE;
     --color-bf-gold: #C9A961;
     --color-bf-danger: #9f1239;
+
+    /* Schedule screen redesign tokens (see README handoff) */
+    --color-bf-bg: #f7f4ec;
+    --color-bf-ink: #201e1d;
+    --color-bf-divider: color-mix(in srgb, #1B2340 35%, transparent);
+    --color-bf-accent-100: #eef0f5;
+    --color-bf-accent-200: #d3d8e5;
+    --color-bf-accent-300: #a8b0c8;
+    --color-bf-accent-400: #6b7699;
+    --color-bf-accent-500: #1B2340;
+    --color-bf-accent-600: #161c34;
+    --color-bf-accent-700: #111528;
+    --color-bf-accent-800: #0c0f1c;
+    --color-bf-accent-900: #070911;
+}
+
+@layer components {
+    .bf-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .bf-btn:focus-visible {
+        outline: 2px solid var(--color-bf-accent-500);
+        outline-offset: 2px;
+    }
+    .bf-btn-primary {
+        background-color: var(--color-bf-accent-500);
+        color: white;
+    }
+    .bf-btn-primary:hover {
+        background-color: var(--color-bf-accent-600);
+    }
+    .bf-btn-secondary {
+        background-color: transparent;
+        color: var(--color-bf-accent-500);
+        border: 1px solid var(--color-bf-divider);
+    }
+    .bf-btn-secondary:hover {
+        background-color: var(--color-bf-accent-100);
+    }
+    .bf-tab {
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        text-align: left;
+        padding: 0 0 0.5rem;
+        flex-shrink: 0;
+        color: color-mix(in srgb, var(--color-bf-ink) 55%, transparent);
+    }
+    .bf-tab:hover {
+        color: var(--color-bf-ink);
+    }
+    .bf-tab:focus-visible {
+        outline: 2px solid var(--color-bf-accent-500);
+        outline-offset: 2px;
+    }
+    .bf-tab-active {
+        color: var(--color-bf-accent-500);
+        border-bottom-color: var(--color-bf-accent-500);
+    }
+
+    .bf-nav-link {
+        padding-bottom: 0.25rem;
+        border-bottom: 2px solid transparent;
+        font-weight: 500;
+        color: color-mix(in srgb, var(--color-bf-ink) 55%, transparent);
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .bf-nav-link:hover {
+        color: var(--color-bf-ink);
+    }
+    .bf-nav-link:focus-visible {
+        outline: 2px solid var(--color-bf-accent-500);
+        outline-offset: 2px;
+    }
+    .bf-nav-link-active {
+        color: var(--color-bf-accent-500);
+        font-weight: 600;
+        border-bottom-color: var(--color-bf-accent-500);
+    }
 }

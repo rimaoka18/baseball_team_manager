@@ -13,7 +13,7 @@
                 vs {{ $game->opponent }}
             @else
                 Blitz Fang {{ $game->team_score }}
-                <span class="text-sm text-gray-400">FINAL</span>
+                <span class="text-sm text-gray-500">FINAL</span>
                 {{ $game->opponent_score }} {{ $game->opponent }}
             @endif
         </h2>
