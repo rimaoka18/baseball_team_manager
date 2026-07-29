@@ -16,15 +16,22 @@ class PlayerController extends Controller
 
     public function roster()
     {
-        $topBatters = $this->playerStatService->getTopBattingAverages();
-        $topPitchers = $this->playerStatService->getTopERA();
         $allPlayerStats = $this->playerStatService->getAllPlayerStats();
 
-        return view('players.roster', compact(
-            'topBatters',
-            'topPitchers',
-            'allPlayerStats'
-        ));
+        return view('players.roster', compact('allPlayerStats'));
+    }
+
+    public function rankings()
+    {
+        $topBatters = $this->playerStatService->getTopBattingAverages();
+        $topPitchers = $this->playerStatService->getTopERA();
+
+        return view('players.roster-rankings', compact('topBatters', 'topPitchers'));
+    }
+
+    public function create()
+    {
+        return view('players.roster-add');
     }
 
     public function store(StorePlayerRequest $request)

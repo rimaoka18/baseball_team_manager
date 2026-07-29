@@ -37,6 +37,8 @@ Route::group(['prefix' => 'games', 'as' => 'games.'], function () {
 });
 
 Route::get('/roster', [PlayerController::class, 'roster'])->name('roster.index');
+Route::get('/roster/rankings', [PlayerController::class, 'rankings'])->name('roster.rankings');
+Route::get('/roster/players/create', [PlayerController::class, 'create'])->name('roster.players.create')->middleware('auth');
 Route::post('/roster/players', [PlayerController::class, 'store'])->name('roster.players.store')->middleware('auth');
 Route::get('/roster/players/{player}', [PlayerController::class, 'show'])->name('roster.players.show');
 Route::get('/roster/players/{player}/edit', [PlayerController::class, 'edit'])->name('roster.players.edit')->middleware('auth');

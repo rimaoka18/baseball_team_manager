@@ -179,4 +179,9 @@
     .bf-lineup-row:hover {
         background-color: color-mix(in srgb, var(--color-bf-ink) 4%, transparent);
     }
+
+    .bf-table-row:hover {
+        background-color: color-mix(in srgb, var(--color-bf-ink) 4%, transparent);
+        cursor: pointer;
+    }
 }

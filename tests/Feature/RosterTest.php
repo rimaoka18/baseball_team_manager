@@ -18,12 +18,21 @@ class RosterTest extends TestCase
         $this->actingAs(User::factory()->create());
     }
 
-    public function test_roster_page_loads_and_shows_add_player_form(): void
+    public function test_roster_page_loads_and_links_to_add_player_page(): void
     {
         $response = $this->get(route('roster.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('選手');
+        $response->assertSee('選手一覧');
+        $response->assertSee('選手を追加');
+        $response->assertSee(route('roster.players.create'), false);
+    }
+
+    public function test_add_player_page_loads_and_shows_the_form(): void
+    {
+        $response = $this->get(route('roster.players.create'));
+
+        $response->assertStatus(200);
         $response->assertSee('選手を追加');
         $response->assertSee(route('roster.players.store'), false);
     }
@@ -83,6 +92,43 @@ class RosterTest extends TestCase
 
         $response->assertSessionHasErrors('jersey_number');
         $this->assertSame(1, Player::where('jersey_number', 18)->count());
+    }
+
+    public function test_adding_a_player_with_jersey_number_00_is_allowed_and_distinct_from_0(): void
+    {
+        Player::create(['name' => '山田', 'jersey_number' => '0']);
+
+        $response = $this->post(route('roster.players.store'), [
+            'name' => '鈴木',
+            'jersey_number' => '00',
+        ]);
+
+        $response->assertRedirect(route('roster.index'));
+        $response->assertSessionDoesntHaveErrors('jersey_number');
+        $this->assertDatabaseHas('players', ['name' => '鈴木', 'jersey_number' => '00']);
+        $this->assertDatabaseHas('players', ['name' => '山田', 'jersey_number' => '0']);
+    }
+
+    public function test_roster_list_defaults_to_ascending_jersey_number_order(): void
+    {
+        Player::create(['name' => '選手B', 'jersey_number' => 23]);
+        Player::create(['name' => '選手A', 'jersey_number' => '00']);
+        Player::create(['name' => '選手C', 'jersey_number' => null]);
+
+        $response = $this->get(route('roster.index'));
+
+        $response->assertStatus(200);
+        $content = $response->getContent();
+
+        $posA = strpos($content, '選手A');
+        $posB = strpos($content, '選手B');
+        $posC = strpos($content, '選手C');
+
+        $this->assertNotFalse($posA);
+        $this->assertNotFalse($posB);
+        $this->assertNotFalse($posC);
+        $this->assertTrue($posA < $posB);
+        $this->assertTrue($posB < $posC);
     }
 
     public function test_player_show_page_displays_stats_card(): void
