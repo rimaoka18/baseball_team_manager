@@ -30,6 +30,11 @@ COPY . .
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
+# Symlink public/storage -> storage/app/public. This resolves at request time,
+# not build time, so it still works once a Persistent Disk is mounted over
+# storage/app/public at runtime (e.g. on Render).
+RUN php artisan storage:link || true
+
 # php-fpm listens on 9000 (used by nginx in docker-compose)
 EXPOSE 9000
 
