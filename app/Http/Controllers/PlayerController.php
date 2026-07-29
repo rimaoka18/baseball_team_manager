@@ -37,7 +37,7 @@ class PlayerController extends Controller
     public function store(StorePlayerRequest $request)
     {
         $photoPath = $request->hasFile('photo')
-            ? $request->file('photo')->store('players', 'public')
+            ? $request->file('photo')->store('players', 'photos')
             : null;
 
         Player::create([

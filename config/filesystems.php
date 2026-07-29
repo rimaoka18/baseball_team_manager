@@ -1,5 +1,13 @@
 <?php
 
+// Render mounts the persistent disk at /var/data (see docker/render/entrypoint.sh,
+// which stores the SQLite file at /var/data/database.sqlite). Player photos live
+// on the same disk so they survive deploys. Locally /var/data doesn't exist, so
+// fall back to the regular Laravel storage path — mirrors the DB_DATABASE
+// fallback pattern in entrypoint.sh, just expressed as a filesystem check since
+// this path isn't meant to vary by environment variable.
+$photosRoot = is_dir('/var/data') ? '/var/data/photos' : storage_path('app/photos');
+
 return [
 
     /*
@@ -47,6 +55,15 @@ return [
             'report' => false,
         ],
 
+        'photos' => [
+            'driver' => 'local',
+            'root' => $photosRoot,
+            'url' => env('APP_URL').'/photos',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
@@ -75,6 +92,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('photos') => $photosRoot,
     ],
 
 ];

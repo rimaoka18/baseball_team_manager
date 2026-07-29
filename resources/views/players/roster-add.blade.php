@@ -16,7 +16,7 @@
 <form method="POST" action="{{ route('roster.players.store') }}" enctype="multipart/form-data">
 	@csrf
 
-	<div class="mb-5">
+	<div class="flex gap-4 flex-wrap items-start mb-5">
 		<label id="photo-dropzone" for="photo-input"
 			class="w-32 h-32 rounded-full border border-dashed border-bf-divider bg-bf-cream shrink-0 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden">
 			<img id="photo-preview" class="hidden w-full h-full object-cover" alt="">
@@ -26,6 +26,7 @@
 			</span>
 		</label>
 		<input type="file" id="photo-input" name="photo" accept="image/*" class="hidden">
+		<p class="text-xs text-bf-ink/60 flex-1 min-w-[180px]">正方形の写真がおすすめです（自動で円形にトリミングされます）。帽子・サングラス着用のままで構いません。</p>
 	</div>
 
 	<div class="flex gap-3 items-end flex-wrap mb-3">
