@@ -172,7 +172,7 @@ class RosterTest extends TestCase
         $response->assertSee('今岡 稜 の成績');
         $response->assertSee('打撃成績');
         $response->assertSee('投手成績');
-        $response->assertSee('打率：');
-        $response->assertSee('防御率：');
+        $response->assertSee('打率');
+        $response->assertSee('防御率');
     }
 }

@@ -27,6 +27,11 @@ class UpdatePlayerRequest extends FormRequest
                 'regex:/^[0-9]{1,2}$/',
                 Rule::unique('players', 'jersey_number')->ignore($this->route('player')),
             ],
+            'photo' => [
+                'nullable',
+                'image',
+                'max:5120',
+            ],
         ];
     }
 
@@ -37,6 +42,8 @@ class UpdatePlayerRequest extends FormRequest
             'name.unique' => 'この選手名は既に登録されています',
             'jersey_number.regex' => '背番号は0〜99の数字で入力してください',
             'jersey_number.unique' => 'この背番号は既に使われています',
+            'photo.image' => '画像ファイルを選択してください',
+            'photo.max' => '画像は5MB以下にしてください',
         ];
     }
 

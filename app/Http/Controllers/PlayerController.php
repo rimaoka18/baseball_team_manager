@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePlayerRequest;
 use App\Models\Player;
 use App\Services\PlayerStatService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PlayerController extends Controller
 {
@@ -65,14 +66,38 @@ class PlayerController extends Controller
 
     public function update(UpdatePlayerRequest $request, Player $player)
     {
-        $player->update([
+        $data = [
             'name' => $request->name,
             'jersey_number' => $request->jersey_number,
-        ]);
+        ];
+
+        if ($request->hasFile('photo')) {
+            if ($player->photo_path) {
+                Storage::disk('photos')->delete($player->photo_path);
+            }
+
+            $data['photo_path'] = $request->file('photo')->store('players', 'photos');
+        }
+
+        $player->update($data);
 
         return redirect()
             ->route('roster.players.show', $player)
             ->with('success', "「{$player->name}」を更新しました");
+    }
+
+    public function destroy(Player $player)
+    {
+        if ($player->photo_path) {
+            Storage::disk('photos')->delete($player->photo_path);
+        }
+
+        $name = $player->name;
+        $player->delete();
+
+        return redirect()
+            ->route('roster.index')
+            ->with('success', "「{$name}」を削除しました");
     }
 
     public function search(Request $request)

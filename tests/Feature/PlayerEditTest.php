@@ -2,9 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Game;
+use App\Models\Lineup;
 use App\Models\Player;
+use App\Models\PlayerGameStat;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PlayerEditTest extends TestCase
@@ -105,5 +110,45 @@ class PlayerEditTest extends TestCase
 
         $response->assertSessionHasErrors('jersey_number');
         $this->assertDatabaseHas('players', ['id' => $player->id, 'jersey_number' => 7]);
+    }
+
+    public function test_updating_a_players_photo_replaces_the_old_file(): void
+    {
+        Storage::fake('photos');
+
+        $player = Player::create(['name' => '山田 太郎', 'photo_path' => 'players/old.jpg']);
+        Storage::disk('photos')->put('players/old.jpg', 'old contents');
+
+        $response = $this->put(route('roster.players.update', $player), [
+            'name' => '山田 太郎',
+            'photo' => UploadedFile::fake()->image('new-face.jpg'),
+        ]);
+
+        $response->assertRedirect(route('roster.players.show', $player));
+
+        $player->refresh();
+        $this->assertNotSame('players/old.jpg', $player->photo_path);
+        Storage::disk('photos')->assertMissing('players/old.jpg');
+        Storage::disk('photos')->assertExists($player->photo_path);
+    }
+
+    public function test_deleting_a_player_removes_their_game_stats_and_lineups(): void
+    {
+        Storage::fake('photos');
+
+        $player = Player::create(['name' => '山田 太郎', 'photo_path' => 'players/photo.jpg']);
+        Storage::disk('photos')->put('players/photo.jpg', 'contents');
+
+        $game = Game::create(['game_date' => '2026-07-20', 'location' => 'Field A', 'opponent' => 'Team A']);
+        Lineup::create(['game_id' => $game->id, 'player_id' => $player->id, 'batting_order' => 1, 'position' => '投']);
+        PlayerGameStat::create(['game_id' => $game->id, 'player_id' => $player->id, 'at_bats' => 3, 'hits' => 1]);
+
+        $response = $this->delete(route('roster.players.destroy', $player));
+
+        $response->assertRedirect(route('roster.index'));
+        $this->assertDatabaseMissing('players', ['id' => $player->id]);
+        $this->assertDatabaseMissing('lineups', ['player_id' => $player->id]);
+        $this->assertDatabaseMissing('player_game_stats', ['player_id' => $player->id]);
+        Storage::disk('photos')->assertMissing('players/photo.jpg');
     }
 }
