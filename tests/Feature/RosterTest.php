@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Player;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RosterTest extends TestCase
@@ -129,6 +131,34 @@ class RosterTest extends TestCase
         $this->assertNotFalse($posC);
         $this->assertTrue($posA < $posB);
         $this->assertTrue($posB < $posC);
+    }
+
+    public function test_adding_a_player_with_a_photo_stores_it_on_the_public_disk(): void
+    {
+        Storage::fake('public');
+
+        $response = $this->post(route('roster.players.store'), [
+            'name' => '山田',
+            'photo' => UploadedFile::fake()->image('face.jpg'),
+        ]);
+
+        $response->assertRedirect(route('roster.index'));
+
+        $player = Player::where('name', '山田')->firstOrFail();
+        $this->assertNotNull($player->photo_path);
+        Storage::disk('public')->assertExists($player->photo_path);
+        $this->assertNotNull($player->photoUrl());
+    }
+
+    public function test_adding_a_player_with_a_non_image_photo_is_rejected(): void
+    {
+        $response = $this->post(route('roster.players.store'), [
+            'name' => '山田',
+            'photo' => UploadedFile::fake()->create('not-a-photo.txt', 10),
+        ]);
+
+        $response->assertSessionHasErrors('photo');
+        $this->assertDatabaseMissing('players', ['name' => '山田']);
     }
 
     public function test_player_show_page_displays_stats_card(): void

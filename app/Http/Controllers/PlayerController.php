@@ -36,9 +36,14 @@ class PlayerController extends Controller
 
     public function store(StorePlayerRequest $request)
     {
+        $photoPath = $request->hasFile('photo')
+            ? $request->file('photo')->store('players', 'public')
+            : null;
+
         Player::create([
             'name' => $request->name,
             'jersey_number' => $request->jersey_number,
+            'photo_path' => $photoPath,
         ]);
 
         return redirect()

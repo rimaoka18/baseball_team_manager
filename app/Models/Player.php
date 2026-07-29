@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Player extends Model
 {
-    protected $fillable = ['name', 'jersey_number'];
+    protected $fillable = ['name', 'jersey_number', 'photo_path'];
 
     public function lineups()
     {
@@ -25,5 +26,10 @@ class Player extends Model
         }
 
         return "#{$this->jersey_number} {$this->name}";
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
     }
 }
