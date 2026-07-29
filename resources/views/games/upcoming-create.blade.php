@@ -46,7 +46,7 @@
         </div>
     @else
         @php
-            $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+            $positions = ['投', '捕', '一', '二', '三', '遊', '左', '中', '右', '指'];
         @endphp
 
         <div>
@@ -129,7 +129,7 @@
     }
 
     @php
-        $positions = $positions ?? ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+        $positions = $positions ?? ['投', '捕', '一', '二', '三', '遊', '左', '中', '右', '指'];
     @endphp
     const PREVIOUS_LINEUP = @json($previousLineupData);
     const LINEUP_POSITIONS = @json($positions);

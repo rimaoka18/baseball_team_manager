@@ -39,7 +39,7 @@
     <hr class="border-t-2 border-bf-divider my-8">
 
     @php
-        $positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'];
+        $positions = ['投', '捕', '一', '二', '三', '遊', '左', '中', '右', '指'];
     @endphp
 
     <div class="flex items-baseline justify-between gap-3 flex-wrap mb-4">
