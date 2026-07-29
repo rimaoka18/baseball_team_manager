@@ -23,9 +23,8 @@ class StorePlayerRequest extends FormRequest
             ],
             'jersey_number' => [
                 'nullable',
-                'integer',
-                'min:0',
-                'max:99',
+                'string',
+                'regex:/^[0-9]{1,2}$/',
                 Rule::unique('players', 'jersey_number'),
             ],
         ];
@@ -36,9 +35,7 @@ class StorePlayerRequest extends FormRequest
         return [
             'name.required' => '選手名を入力してください',
             'name.unique' => 'この選手名は既に登録されています',
-            'jersey_number.integer' => '背番号は数字で入力してください',
-            'jersey_number.min' => '背番号は0以上で入力してください',
-            'jersey_number.max' => '背番号は99以下で入力してください',
+            'jersey_number.regex' => '背番号は0〜99の数字で入力してください',
             'jersey_number.unique' => 'この背番号は既に使われています',
         ];
     }
@@ -51,7 +48,11 @@ class StorePlayerRequest extends FormRequest
             ]);
         }
 
-        if ($this->input('jersey_number') === '' || $this->input('jersey_number') === null) {
+        if ($this->has('jersey_number')) {
+            $this->merge(['jersey_number' => trim((string) $this->input('jersey_number'))]);
+        }
+
+        if ($this->input('jersey_number') === '') {
             $this->merge(['jersey_number' => null]);
         }
     }

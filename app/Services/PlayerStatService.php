@@ -45,7 +45,7 @@ class PlayerStatService
                 'innings_pitched' => $player->gameStats->sum('innings_pitched'),
                 'era' => $this->getERAForPlayer($player),
             ])
-            ->sortByDesc(fn($row) => $row['avg'] ?? -1)
+            ->sortBy(fn($row) => $row['player']->jersey_number === null ? PHP_INT_MAX : (int) $row['player']->jersey_number)
             ->values();
     }
 

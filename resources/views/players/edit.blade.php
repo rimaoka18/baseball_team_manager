@@ -20,7 +20,7 @@
 		@method('PUT')
 		<div class="w-24 shrink-0">
 			<label class="block text-sm font-medium text-bf-navy mb-1">背番号</label>
-			<input type="number" name="jersey_number" value="{{ old('jersey_number', $player->jersey_number) }}" min="0" max="99"
+			<input type="text" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" name="jersey_number" value="{{ old('jersey_number', $player->jersey_number) }}"
 				placeholder="18"
 				class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-800">
 		</div>
