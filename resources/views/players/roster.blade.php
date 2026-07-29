@@ -78,7 +78,18 @@
 						data-ip="{{ $row['innings_pitched'] }}"
 						data-era="{{ is_null($row['era']) ? '' : $row['era'] }}">
 						<td class="py-2 border-b border-bf-divider font-heading font-extrabold text-bf-navy">{{ is_null($row['player']->jersey_number) ? '-' : $row['player']->jersey_number }}</td>
-						<td class="py-2 border-b border-bf-divider">{{ $row['player']->name }}</td>
+						<td class="py-2 border-b border-bf-divider">
+							<div class="flex items-center gap-2.5">
+								<span class="w-9 h-9 rounded-full border border-bf-divider bg-bf-cream shrink-0 overflow-hidden flex items-center justify-center text-bf-ink/45">
+									@if ($row['player']->photoUrl())
+										<img src="{{ $row['player']->photoUrl() }}" alt="" class="w-full h-full object-cover">
+									@else
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>
+									@endif
+								</span>
+								{{ $row['player']->name }}
+							</div>
+						</td>
 						<td class="py-2 border-b border-bf-divider text-right">{{ $row['at_bats'] }}</td>
 						<td class="py-2 border-b border-bf-divider text-right">{{ $row['hits'] }}</td>
 						<td class="py-2 border-b border-bf-divider text-right font-semibold">{{ is_null($row['avg']) ? '-' : ltrim(number_format($row['avg'], 3), '0') }}</td>

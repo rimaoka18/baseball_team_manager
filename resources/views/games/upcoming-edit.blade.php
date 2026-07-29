@@ -55,6 +55,7 @@
             <div class="flex items-center gap-3 pb-2 border-b-2 border-bf-divider bf-kicker">
                 <div class="w-8 shrink-0"></div>
                 <div class="w-7 text-center shrink-0">打順</div>
+                <div class="w-[30px] shrink-0"></div>
                 <div class="flex-1">選手名</div>
                 <div class="w-[100px] shrink-0">守備位置</div>
             </div>
@@ -73,11 +74,15 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>
                         </div>
                         <div class="w-7 text-center shrink-0 font-heading font-extrabold text-[15px] text-bf-navy batting-order">{{ $i + 1 }}</div>
+                        <div class="lineup-avatar w-[30px] h-[30px] rounded-full border border-bf-divider bg-bf-cream shrink-0 overflow-hidden flex items-center justify-center text-bf-ink/45">
+                            <img class="lineup-avatar-img hidden w-full h-full object-cover" alt="">
+                            <svg class="lineup-avatar-glyph" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>
+                        </div>
                         <div class="flex-1 min-w-[140px]">
-                            <select name="player_ids[]" class="bf-select">
+                            <select name="player_ids[]" class="bf-select" onchange="updateLineupAvatar(this)">
                                 <option value="">-</option>
                                 @foreach ($players as $player)
-                                    <option value="{{ $player->id }}" @selected((string) old('player_ids.' . $i, (string) ($lineup?->player_id ?? '')) === (string) $player->id)>{{ $player->rosterLabel() }}</option>
+                                    <option value="{{ $player->id }}" data-photo="{{ $player->photoUrl() }}" @selected((string) old('player_ids.' . $i, (string) ($lineup?->player_id ?? '')) === (string) $player->id)>{{ $player->rosterLabel() }}</option>
                                 @endforeach
                             </select>
                             <input type="hidden" name="lineup_ids[]" value="{{ old('lineup_ids.' . $i, $lineup?->id ?? '') }}">
@@ -141,6 +146,7 @@
         newRow.querySelectorAll('input[type="hidden"]').forEach(input => input.value = '');
         newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
         container.appendChild(newRow);
+        updateLineupAvatar(newRow.querySelector('select[name="player_ids[]"]'));
         renumberLineupRows();
 
         if (container.querySelectorAll('.lineup-row').length >= LINEUP_MAX_ROWS) {
@@ -156,6 +162,27 @@
         });
     }
 
+    function updateLineupAvatar(select) {
+        if (!select) return;
+
+        const row = select.closest('.lineup-row');
+        const img = row.querySelector('.lineup-avatar-img');
+        const glyph = row.querySelector('.lineup-avatar-glyph');
+        const photo = select.selectedOptions[0]?.dataset.photo;
+
+        if (photo) {
+            img.src = photo;
+            img.classList.remove('hidden');
+            glyph.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            img.removeAttribute('src');
+            glyph.classList.remove('hidden');
+        }
+    }
+
+    document.querySelectorAll('#lineup-rows select[name="player_ids[]"]').forEach(updateLineupAvatar);
+
     const PREVIOUS_LINEUP = @json($previousLineupData);
     const LINEUP_POSITIONS = @json($positions);
 
@@ -164,6 +191,7 @@
         const positionSelect = row.querySelector('select[name="position[]"]');
         playerSelect.value = entry ? String(entry.id) : '';
         positionSelect.value = (entry && LINEUP_POSITIONS.includes(entry.position)) ? entry.position : '';
+        updateLineupAvatar(playerSelect);
     }
 
     function usePreviousLineup() {
