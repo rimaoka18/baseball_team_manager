@@ -30,6 +30,6 @@ class Player extends Model
 
     public function photoUrl(): ?string
     {
-        return $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null;
+        return $this->photo_path ? Storage::disk('photos')->url($this->photo_path) : null;
     }
 }

@@ -133,9 +133,9 @@ class RosterTest extends TestCase
         $this->assertTrue($posB < $posC);
     }
 
-    public function test_adding_a_player_with_a_photo_stores_it_on_the_public_disk(): void
+    public function test_adding_a_player_with_a_photo_stores_it_on_the_photos_disk(): void
     {
-        Storage::fake('public');
+        Storage::fake('photos');
 
         $response = $this->post(route('roster.players.store'), [
             'name' => '山田',
@@ -146,7 +146,7 @@ class RosterTest extends TestCase
 
         $player = Player::where('name', '山田')->firstOrFail();
         $this->assertNotNull($player->photo_path);
-        Storage::disk('public')->assertExists($player->photo_path);
+        Storage::disk('photos')->assertExists($player->photo_path);
         $this->assertNotNull($player->photoUrl());
     }
 
