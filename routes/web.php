@@ -43,6 +43,7 @@ Route::post('/roster/players', [PlayerController::class, 'store'])->name('roster
 Route::get('/roster/players/{player}', [PlayerController::class, 'show'])->name('roster.players.show');
 Route::get('/roster/players/{player}/edit', [PlayerController::class, 'edit'])->name('roster.players.edit')->middleware('auth');
 Route::put('/roster/players/{player}', [PlayerController::class, 'update'])->name('roster.players.update')->middleware('auth');
+Route::delete('/roster/players/{player}', [PlayerController::class, 'destroy'])->name('roster.players.destroy')->middleware('auth');
 
 // プレイヤー検索
 Route::get('/players/search', [PlayerController::class, 'search'])->name('players.search');

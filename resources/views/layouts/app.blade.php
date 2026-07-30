@@ -11,7 +11,8 @@
 <body class="bg-bf-bg text-bf-ink overflow-x-hidden">
     <header class="border-b-2 border-bf-divider">
         <div class="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-            <a href="{{ route('games.index') }}" class="font-heading text-lg font-extrabold tracking-wide text-bf-navy mr-auto">
+            <a href="{{ route('games.index') }}" class="flex items-center gap-2.5 font-heading text-lg font-extrabold tracking-wide text-bf-navy mr-auto">
+                <img src="{{ asset('images/logo.png') }}" alt="" class="w-12 h-12 rounded-full object-cover">
                 BLITZ FANG
             </a>
 
@@ -30,7 +31,7 @@
                 </a>
             </nav>
 
-            <div class="text-xs">
+            <div class="text-xs text-right w-full sm:w-auto">
                 @auth
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
